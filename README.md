@@ -18,11 +18,13 @@ This README would normally document whatever steps are necessary to get your app
 * How to run tests
 * Deployment instructions
 
-### Contribution guidelines ###
+### Tools used
 
-* Writing tests
-* Code review
-* Other guidelines
+sass --watch index.scss:index.css init.scss:init.css --style compressed
+
+uglifyjs ./dist/index.js \
+         -o ./dist/index.min.js \
+         -p 5 -c -m
 
 ### Who do I talk to? ###
 
