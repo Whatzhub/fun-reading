@@ -55,15 +55,16 @@
 <body>
   <section id="test">
     <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" />
-      <button>Send {{message}}</button>
+    <form action="" v-on:submit.prevent>
+      <input id="m" autocomplete="off" v-model="message" v-on:focus="clear"/>
+      <button @click="submit2">Send</button>
     </form>
   </section>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
-  <script src="js/store.js"></script>
+  <script src="js/app.bundle.js"></script>
+
 </body>
 
 </html>
