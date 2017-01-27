@@ -2,68 +2,69 @@
 <html>
 
 <head>
-  <title>Socket.IO chat</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font: 13px Helvetica, Arial;
-    }
-
-    form {
-      background: #000;
-      padding: 3px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-
-    form input {
-      border: 0;
-      padding: 10px;
-      width: 90%;
-      margin-right: .5%;
-    }
-
-    form button {
-      width: 9%;
-      background: rgb(130, 224, 255);
-      border: none;
-      padding: 10px;
-    }
-
-    #messages {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    #messages li {
-      padding: 5px 10px;
-    }
-
-    #messages li:nth-child(odd) {
-      background: #eee;
-    }
-  </style>
+  <title>Fun Reading - A Reading Battle Game</title>
+  <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
+  <link rel="stylesheet" href="http://csshake.surge.sh/csshake.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.4/milligram.min.css">
+  <link rel="stylesheet" href="css/app.bundle.css">
 </head>
 
 <body>
-  <section id="test">
-    <ul id="messages"></ul>
-    <form action="" v-on:submit.prevent>
-      <input id="m" autocomplete="off" v-model="message" v-on:focus="clear"/>
-      <button @click="submit2">Send</button>
-    </form>
+  <section id="home">
+    <div class="container">
+
+      <div class="row pt-50">
+        <div class="column center">
+          <h1>FunReading.io</h1>
+        </div>
+      </div>
+
+      <div class="row pt-20" v-if="waitScreen == false">
+        <div class="column column-50 column-offset-25">
+
+          <div class="row">
+            <div class="column center">
+              <h4>Read against your opponent.</h4>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="column center">
+              <input id="m" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name" :class="{'shake-slow': isShake}" />
+              <a class="button" href="/play" @click="submitName">PLAY</a>
+            </div>
+          </div>
+
+          <div class="row pt-20">
+            <div class="column center">
+              <p> Protect your general + Capture enemy generals. </p>
+              <p>Click and Drag to move the map. Click or use WASD to move armies.</p>
+              <p>[Spacebar] to deselect, [Q] to clear moves, [E] to undo moves. [9] to zoom out, [0] to zoom in. 1 click = move 100% 2 clicks = move 50%</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row pt-20" v-if="waitScreen == true">
+        <div class="column column-50 column-offset-25">
+          <div class="row">
+            <div class="column center">
+              <h3> {{ timer }}</h3>
+              <h3> Waiting for players... {{usersNum}} / 2</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/mojs/latest/mo.min.js"></script>
   <script src="js/app.bundle.js"></script>
+
 
 </body>
 

@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Fun Reading VS Game | Battle</title>
+  <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
+  <link rel="stylesheet" href="http://csshake.surge.sh/csshake.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.4/milligram.min.css">
+  <link rel="stylesheet" href="css/app.bundle.css">
+</head>
+
+<body>
+  <section id="play">
+    <div class="container">
+      <form action="" @submit.prevent :class="{'shake-slow': isShake}">
+        <input id="m" autocomplete="off" placeholder="enter your msg.." @keyup.enter="submitMsg" v-model="message"  />
+        <button @click="submitMsg">Send</button>
+        <a class="button" href='/'>Back</a>
+        <p>Welcome, {{name}}</p>
+      </form>
+
+      <ul id="words" class="no-bullets pt-50 center">
+        <transition-group name="list-complete">
+          <li v-for="i in words" :key="i.word" class="list-complete-item">
+            <h2>{{i.word}}</h2>
+          </li>
+        </transition-group>
+      </ul>
+
+      <h3 v-if="recognised">You spoke the word: {{recognisedWord}}</h3>
+
+    </div>
+  </section>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/mojs/latest/mo.min.js"></script>
+  <script src="js/app.bundle.js"></script>
+
+</body>
+
+</html>
