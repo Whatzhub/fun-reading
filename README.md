@@ -32,6 +32,22 @@ uglifyjs ./dist/index.js \
          -o ./dist/index.min.js \
          -p 5 -c -m
 
+         // rules: [{
+         //   test: /\.sass$/,
+         //   loader: ExtractTextPlugin.extract({
+         //     fallbackLoader: "style-loader",
+         //     loader: "css-loader!sass-loader",
+         //   }),
+         // }],
+         // loaders: [{
+         //   test: /\.js$/,
+         //   exclude: /node_modules/,
+         //   loader: 'babel-loader'
+         // }, {
+         //   test: /\.scss$/,
+         //   loaders: ['style-loader', 'css-loader', 'sass-loader']
+         // }]
+
 ### Who do I talk to? ###
 
 * Daniel Chan / danielchan.yes@gmail.com
