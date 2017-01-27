@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var Helpers = require('./modules/helpers');
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 app.use(express.static('dist/'));
 
@@ -10,30 +11,98 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-const userIds = [];
-io.on('connection', (socket) => {
+app.get('/play', (req, res) => {
+  res.sendFile(__dirname + '/views/play.html');
+  var words;
+  Helpers.download('http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=10&limit=' + 10 + '&api_key=' +'a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5')
+    .then((data) => {
+      console.log(16, data);
+      words = data;
+      io.emit('play msg', words);
+    });
+});
 
-  console.log('a user connected');
+const users = [];
+const words = [];
+var usersNum = 0;
+var roomNum = 0;
+var roomName = '';
+
+var home = io.of('/');
+home.on('connection', (socket) => {
+
+  socket.on('join', (name) => {
+    usersNum++;
+
+    if (usersNum == 1) {
+      roomName = 'playroom' + roomNum;
+      socket.join(roomName);
+      console.log('1st player pending game: ' + name);
+      users.push({
+        userId: socket.id,
+        userName: name
+      });
+      io.in(roomName).emit('join msg', name, usersNum);
+      console.log('Updated Current Users: ' + JSON.stringify(users, null, '  '));
+      console.log('Rooms: ' + JSON.stringify(io.sockets.adapter.rooms, null, '  '));
+    }
+
+    if (usersNum == 2) {
+      socket.join(roomName);
+      // TODO: Emit
+      io.in(roomName).emit('join msg', name, usersNum);
+      // TODO: Broadcast to all playroom1 players to start game
+      usersNum = 0;
+      roomNum++;
+      console.log('Updated Current Users: ' + JSON.stringify(users, null, '  '));
+      console.log('Rooms: ' + JSON.stringify(io.sockets.adapter.rooms, null, '  '));
+    }
+  });
+
+
+  io.in('playroom1').on('leave', () => {
+    console.log(socket.id + 'has left playroom1');
+  });
+});
+
+var playroom = io.of('/playroom');
+playroom.on('connection', (socket) => {
+
+  console.log('a user connected to playroom');
+  playroom.emit('a user has connected to playroom');
   // console.log('socket info: ' + Object.keys(socket));
   // console.log(socket);
-  userIds.push(socket.id);
-  console.log(19, userIds);
+  // userIds.push(socket.id);
+  // console.log(19, users);
+
+  // TODO: close playroom if all user left
 
 
-  socket.on('chat message', (msgObj) => {
-    console.log('message: ' + msgObj.name + msgObj.message);
-    io.emit('chat message', msgObj);
+  socket.on('chat message', (msg) => {
+    console.log('message: ' + msg);
+    users.forEach((i,el) => {
+      if (socket.id == i.userId) {
+        playroom.emit('chat message', msg, i.userName);
+      }
+    });
   });
 
   socket.on('disconnect', () => {
     console.log(socket.id + ' user disconnected');
-    var i = userIds.indexOf(socket.id);
-    userIds.splice(i, 1);
-    io.emit('user left', socket.id);
+
+    // Remove disconnected users from chatroom
+    users.forEach((i,el) => {
+      if (socket.id == i.userId) {
+        playroom.emit('user left', i.userName);
+        users.splice(i, 1);
+      }
+    });
+
+    console.log('Updated Current Users: ' + JSON.stringify(users, null, '  '));
   });
 });
 
-http.listen(3000, () => {
+server.listen(3000, () => {
   console.log('listening on *:3000');
   console.log(__dirname);
   console.log(process.env.PORT || 3000);
