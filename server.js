@@ -11,6 +11,10 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+app.get('/log', (req, res) => {
+  res.sendFile(__dirname + '/views/log.html');
+});
+
 app.get('/play', (req, res) => {
   res.sendFile(__dirname + '/views/play.html');
   var words;
@@ -24,36 +28,38 @@ app.get('/play', (req, res) => {
 
 const users = [];
 const words = [];
-var usersNum = 0;
-var roomNum = 0;
+var playerNo = 0;
+var roomNo = 0;
 var roomName = '';
 
 var home = io.of('/');
 home.on('connection', (socket) => {
 
-  socket.on('join', (name) => {
-    usersNum++;
+  socket.on('join', (userName) => {
+    playerNo++;
 
-    if (usersNum == 1) {
-      roomName = 'playroom' + roomNum;
+    if (playerNo == 1) {
+      roomName = 'playroom' + roomNo;
       socket.join(roomName);
-      console.log('1st player pending game: ' + name);
+      console.log('1st player pending game: ' + userName);
       users.push({
         userId: socket.id,
-        userName: name
+        userName: userName,
+        playerNo: playerNo,
+        roomName: roomName
       });
-      io.in(roomName).emit('join msg', name, usersNum);
+      io.in(roomName).emit('join msg', userName, roomName);
       console.log('Updated Current Users: ' + JSON.stringify(users, null, '  '));
       console.log('Rooms: ' + JSON.stringify(io.sockets.adapter.rooms, null, '  '));
     }
 
-    if (usersNum == 2) {
+    if (playerNo == 2) {
       socket.join(roomName);
       // TODO: Emit
-      io.in(roomName).emit('join msg', name, usersNum);
+      io.in(roomName).emit('join msg', userName, roomName);
       // TODO: Broadcast to all playroom1 players to start game
-      usersNum = 0;
-      roomNum++;
+      playerNo = 0;
+      roomNo++;
       console.log('Updated Current Users: ' + JSON.stringify(users, null, '  '));
       console.log('Rooms: ' + JSON.stringify(io.sockets.adapter.rooms, null, '  '));
     }

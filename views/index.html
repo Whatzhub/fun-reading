@@ -4,8 +4,10 @@
 <head>
   <title>Fun Reading - A Reading Battle Game</title>
   <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/css?family=Chewy" rel="stylesheet">
   <link rel="stylesheet" href="http://csshake.surge.sh/csshake.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.4/milligram.min.css">
+  <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/app.bundle.css">
 </head>
 
@@ -15,7 +17,18 @@
 
       <div class="row pt-50">
         <div class="column center">
-          <h1>FunReading.io</h1>
+          <h1 class="chewy-font">FunReading.io</h1>
+        </div>
+      </div>
+
+      <div class="row pt-20" v-if="waitScreen == true">
+        <div class="column column-50 column-offset-25">
+          <div class="row">
+            <div class="column center">
+              <h5> Time before game starts: {{ seconds }} secs</h5>
+              <h5> Waiting for players... {{usersNum}} / 2</h5>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -24,38 +37,33 @@
 
           <div class="row">
             <div class="column center">
-              <h4>Read against your opponent.</h4>
+              <h4 class="chewy-font">Read against your opponent.</h4>
             </div>
           </div>
 
           <div class="row">
             <div class="column center">
-              <input id="m" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name" :class="{'shake-slow': isShake}" />
+              <input class="play-btn" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name" :class="{'shake-slow': isShake}" />
               <a class="button" href="/play" @click="submitName">PLAY</a>
             </div>
           </div>
 
           <div class="row pt-20">
             <div class="column center">
-              <p> Protect your general + Capture enemy generals. </p>
-              <p>Click and Drag to move the map. Click or use WASD to move armies.</p>
-              <p>[Spacebar] to deselect, [Q] to clear moves, [E] to undo moves. [9] to zoom out, [0] to zoom in. 1 click = move 100% 2 clicks = move 50%</p>
+              <h6>Read the words aloud + Earn the most points. </h6>
+              <h6>Simply <strong>read aloud</strong> the words. <em>Be quick</em> and don't let your opponent get ahead.</h6>
+              <h6>Longer & complex words = <strong>more points</strong>. Devise your strategy wisely.</h6>
             </div>
           </div>
 
         </div>
       </div>
 
-      <div class="row pt-20" v-if="waitScreen == true">
-        <div class="column column-50 column-offset-25">
-          <div class="row">
-            <div class="column center">
-              <h3> {{ timer }}</h3>
-              <h3> Waiting for players... {{usersNum}} / 2</h3>
-            </div>
-          </div>
-        </div>
-      </div>
+      <a class="button button-clear fixed-top-right" href="/log"><i class="fa fa-book fa-2x" aria-hidden="true"></i> Changelog</a>
+
+
+
+
     </div>
   </section>
 
@@ -63,6 +71,7 @@
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="http://cdn.jsdelivr.net/mojs/latest/mo.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
   <script src="js/app.bundle.js"></script>
 
 

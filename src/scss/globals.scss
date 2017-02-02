@@ -21,6 +21,16 @@ body{
 // 	position: relative;
 // }
 
+.fixed-top-right {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+}
+
+.chewy-font {
+	font-family: 'Chewy', cursive;
+}
+
 img {width: 100%; height: auto;}
 
 .hidden {display:none;}
@@ -36,3 +46,4 @@ img {width: 100%; height: auto;}
 @import "transitions";
 @import "home";
 @import "play";
+@import "log";
