@@ -1,5 +1,6 @@
 var fs = require('fs');
 var http = require('http');
+var https = require('https');
 
 var Helpers = {};
 
@@ -60,14 +61,17 @@ Helpers.downloadWithHeaders = function(host, url) {
   var options = {
     host: host,
     path: url,
+    port: 443,
     headers: {
       connection: 'keep-alive',
       'User-Agent': 'Mozilla/5.0',
+      'Accept': 'application/json',
+      'X-Mashape-Key': '1AwbgpvgFxmsh8VCc9zJ87kLYCsIp1sZJetjsnDx6L9fpfuMJC'
     }
   };
 
   return new Promise((resolve, reject) => {
-    http.get(options, function(res) {
+    https.get(options, function(res) {
       res.setEncoding('utf8');
       var data = '';
       res.on('data', function(chunk) {
