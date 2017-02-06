@@ -12,7 +12,9 @@
 </head>
 
 <body>
-  <section id="home">
+
+  <!-- Home Screen View -->
+  <section id="home" v-if="!gameScreen">
     <div class="container">
 
       <div class="row pt-50">
@@ -21,18 +23,20 @@
         </div>
       </div>
 
-      <div class="row pt-20" v-if="waitScreen == true">
+      <!-- Wait Screen View -->
+      <div class="row pt-20" v-if="waitScreen">
         <div class="column column-50 column-offset-25">
           <div class="row">
             <div class="column center">
               <h5> Time before game starts: {{ seconds }} secs</h5>
-              <h5> Waiting for players... {{usersNum}} / 2</h5>
+              <h5> Waiting for players... {{playerNo}} / 2</h5>
             </div>
           </div>
         </div>
       </div>
+      <!-- End of Wait Screen View -->
 
-      <div class="row pt-20" v-if="waitScreen == false">
+      <div class="row pt-20" v-if="!waitScreen">
         <div class="column column-50 column-offset-25">
 
           <div class="row">
@@ -43,8 +47,8 @@
 
           <div class="row">
             <div class="column center">
-              <input class="play-btn" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name" :class="{'shake-slow': isShake}" />
-              <a class="button" href="/play" @click="submitName">PLAY</a>
+              <input class="play-btn" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name"/>
+              <a class="button" @click="submitName">PLAY</a>
             </div>
           </div>
 
@@ -55,17 +59,41 @@
               <h6>Longer & complex words = <strong>more points</strong>. Devise your strategy wisely.</h6>
             </div>
           </div>
-
         </div>
+
+        <a class="button button-clear fixed-top-right" href="/log">
+          <i class="fa fa-book fa-2x" aria-hidden="true"></i> Changelog
+        </a>
       </div>
+    </div>
 
-      <a class="button button-clear fixed-top-right" href="/log"><i class="fa fa-book fa-2x" aria-hidden="true"></i> Changelog</a>
+  </section>
+  <!-- End of Home Screen View -->
 
+  <!-- Play Screen View -->
+  <section id="play" v-if="gameScreen">
+    <div class="container">
+      <form action="" @submit.prevent :class="{'shake-slow': isShake}">
+        <input id="m" autocomplete="off" placeholder="type your word.." @keyup.enter="submitMsg" v-model="typedWord"  />
+        <button @click="submitMsg">Send</button>
+        <a class="button" href='/'>Back</a>
+        <p>Welcome, {{name}}</p>
+      </form>
 
+      <ul class="no-bullets pt-50 center">
+        <transition-group name="list-complete">
+          <li v-for="i in words" :key="i.word" class="list-complete-item">
+            <h2>{{i.word}}</h2>
+          </li>
+        </transition-group>
+      </ul>
 
+      <h3 v-show="speechResult">You spoke the word: {{recognisedWord}}</h3>
 
     </div>
   </section>
+  <!-- End of Play Screen View -->
+
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>

@@ -54,7 +54,7 @@ var play = new Vue({
   }
 });
 
-if (document.getElementById('play') != null) {
+if (document.getElementById('playroom') != null) {
   console.log('Play screen is present');
 
   var socket = io('/playroom');

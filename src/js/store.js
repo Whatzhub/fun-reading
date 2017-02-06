@@ -1,19 +1,25 @@
 var Store = {
   state: {
-    name: '',
-    rank: 0
+    user: {
+      name: '',
+      rank: 0
+    },
+    opponent: {
+      name: '',
+      rank: ''
+    }
   },
-  setName: function(val) {
-    this.state.name = val;
+  setUserName: function(val) {
+    this.state.user.name = val;
   },
-  getName: function() {
-    return this.state.name;
+  getUserName: function() {
+    return this.state.user.name;
   },
-  setRank: function(val) {
-    this.state.rank = val;
+  setUserRank: function(val) {
+    this.state.user.rank = val;
   },
-  getRank: function() {
-    return this.state.rank;
+  getUserRank: function() {
+    return this.state.user.rank;
   }
 };
 

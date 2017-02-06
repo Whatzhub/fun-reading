@@ -16,10 +16,10 @@
         <input id="m" autocomplete="off" placeholder="enter your msg.." @keyup.enter="submitMsg" v-model="message"  />
         <button @click="submitMsg">Send</button>
         <a class="button" href='/'>Back</a>
-        <p class="chewy-font">Welcome, {{name}}</p>
+        <p>Welcome, {{name}}</p>
       </form>
 
-      <ul id="words" class="chewy-font no-bullets pt-50 center">
+      <ul id="words" class="no-bullets pt-50 center">
         <transition-group name="list-complete">
           <li v-for="i in words" :key="i.word" class="list-complete-item">
             <h2>{{i.word}}</h2>
@@ -27,7 +27,7 @@
         </transition-group>
       </ul>
 
-      <h3 class="chewy-font" v-if="recognised">You spoke the word: {{recognisedWord}}</h3>
+      <h3 v-if="recognised">You spoke the word: {{recognisedWord}}</h3>
 
     </div>
   </section>
