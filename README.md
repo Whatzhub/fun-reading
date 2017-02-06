@@ -8,6 +8,10 @@ This README would normally document whatever steps are necessary to get your app
 * A multiplayer read aloud game
 * Version 1.0
 
+### High level Architecture Overview
+
+* https://docs.google.com/drawings/d/12IjVf1UdGDheY9RRvMSQBg4RH6nnkD9flk-6HFEpR7M/edit
+
 ### How do I get set up? ###
 
 * Summary of set up
