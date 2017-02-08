@@ -84,6 +84,7 @@
         <transition-group name="list-complete">
           <li v-for="i in words" :key="i.word" class="list-complete-item">
             <h2>{{i.word}}</h2>
+            <span>{{i.score}}</span>
           </li>
         </transition-group>
       </ul>

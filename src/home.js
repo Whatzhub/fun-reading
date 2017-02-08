@@ -75,11 +75,10 @@ var play = new Vue({
     currentUser: '',
     name: '',
     typedWord: '',
+    matchedWord: '',
     isShake: false,
     gameScreen: false,
-    wordApi: {
-      url: 'http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=10&limit=' + 10 + '&api_key=' + 'a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
-    },
+    wordApiUrl: Store.getWordsApiUrl(),
     words: [],
     // Web Speech API Data
     recognition: {},
@@ -91,14 +90,38 @@ var play = new Vue({
   mounted: function() {
     console.log('Play screen mounted!');
 
-    // Trigger playroom mode
+    // Socket #1 - Trigger playroom mode
     socket.on('play begin', (words) => {
       console.log(JSON.parse(words));
-      play.words = JSON.parse(words);
+      var data = JSON.parse(words);
+      var scoreMap = Store.getWordsScoreMap();
+      console.log(97, data);
+
+      var mappedList = [];
+      data.forEach((i, el) => {
+        var wordLen = i.word.length;
+        scoreMap.forEach((j, el2) => {
+          if (wordLen == j[0]) {
+            mappedList.push({
+              id: i.id,
+              word: i.word,
+              score: j[1]
+            });
+          }
+        });
+      });
+      play.words = mappedList;
+
       play.initGame();
     });
 
-    // Listen to opponent left
+    // Socket #2 - Listen to other player's matched words
+    socket.on('player matched word emit', (player, word) => {
+      console.log(player, word);
+      play.clearWord(word);
+    });
+
+    // Socket #3 - Listen to opponent left
     socket.on('opponent left', (msg) => {
       console.log(msg);
     });
@@ -110,7 +133,7 @@ var play = new Vue({
       this.name = Store.getUserName();
 
       // TODO: Single Player Mode
-      // axios.get(this.wordApi.url)
+      // axios.get(this.wordApiUrl)
       //   .then((res) => {
       //     console.log(110, res);
       //     this.words = res.data;
@@ -125,7 +148,6 @@ var play = new Vue({
         console.log('Web speech recognition result returned...');
         var lastIndex = ev.results.length - 1;
         var word = ev.results[lastIndex][0].transcript;
-        console.log('You spoke the word: ', word);
         play.recognisedWord = word;
         play.submitMsg();
       }
@@ -159,22 +181,31 @@ var play = new Vue({
       }
     },
     submitMsg: function(e) {
-
       // NOTE: Including typed input for testing
-      var wordMatched = this.words.forEach((i, el) => {
-        var typedWord = this.typedWord.toLowerCase();
-        var recognisedWord = this.recognisedWord.toLowerCase();
+      var typedWord = this.typedWord.toLowerCase();
+      var recognisedWord = this.recognisedWord.toLowerCase();
+
+      this.words.forEach((i, el) => {
         var checkedWord = i.word.toLowerCase();
         if (typedWord == checkedWord || recognisedWord == checkedWord) {
           // remove from words array
+          this.matchedWord = checkedWord;
           this.words.splice(el, 1);
-          // Notify other player
-          socket.emit('', this.message);
+          // Notify opponent
+          socket.emit('player matched word', checkedWord);
         }
       });
-
       this.typedWord = '';
+    },
+    clearWord: function(returnedWord) {
+      var clear = returnedWord.toLowerCase();
 
+      this.words.forEach((i, el) => {
+        var check = i.word.toLowerCase();
+        if (clear == check) {
+          this.words.splice(el, 1);
+        }
+      });
     }
   }
 });
