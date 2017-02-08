@@ -70,6 +70,7 @@ var home = new Vue({
   }
 });
 
+
 var play = new Vue({
   data: {
     currentUser: '',
@@ -209,6 +210,7 @@ var play = new Vue({
     }
   }
 });
+
 
 // Initialise Home View
 if (document.getElementById('home') != null) {

@@ -31,7 +31,7 @@ var home = io.of('/');
 home.on('connection', (socket) => {
   console.log('a user with socket id ' + socket.id + ' has landed on the homepage');
 
-  // Socket #1 - Players trigger 'play' socket
+  // Socket #1 - Players input name and pressed play
   socket.on('join', (userName) => {
     playerNo++;
 
@@ -43,7 +43,9 @@ home.on('connection', (socket) => {
         userId: socket.id,
         userName: userName,
         playerNo: playerNo,
-        roomName: roomName
+        roomName: roomName,
+        pending: true,
+        playing: false,
       });
       io.in(roomName).emit('join msg', userName, playerNo, roomName);
       console.log('Updated Current Users: ' + JSON.stringify(Users, null, '  '));
@@ -56,7 +58,17 @@ home.on('connection', (socket) => {
         userId: socket.id,
         userName: userName,
         playerNo: playerNo,
-        roomName: roomName
+        roomName: roomName,
+        pending: false,
+        playing: true,
+      });
+
+      // Set Player 1 to gameplay mode
+      Users.forEach((i, el) => {
+        if (i.roomName == roomName && i.playerNo == 1) {
+          i.pending = false;
+          i.playing = true;
+        }
       });
 
       // Broadcast to pending players for this playroom
@@ -81,12 +93,7 @@ home.on('connection', (socket) => {
     }
   });
 
-  // Socket #2 - Players trigger 1-on-1 playroom gameplay
-  socket.on('play', (thisRoomName) => {
-    console.log('Users ready to play at ' + thisRoomName);
-  });
-
-  // Socket #3 - Player matched word successfully
+  // Socket #2 - Player matched word successfully
   socket.on('player matched word', (word) => {
     Users.forEach((i, el) => {
       if (i.userId == socket.id) {
@@ -96,27 +103,33 @@ home.on('connection', (socket) => {
     console.log(word);
   });
 
-  // Socket #4 - Detect user disconnection
+  // Socket #3 - Detect user disconnection
   socket.on('disconnect', (msg) => {
-    var inPlay = false;
-
-    // User left from playroom
     try {
+      var result = 'not playing';
       Users.forEach((i, el) => {
-        if (i.userId == socket.id) {
-          io.in(i.roomName).emit('opponent left', i.userName + ' has left ' + i.roomName);
-
-          // Remove disconnected users from Users
+        // Case 1: User left when pending game
+        if (i.userId == socket.id && i.pending == true) {
           Users.splice(el, 1);
-          inPlay = true;
+          playerNo = 0;
+          result = 'pending game';
+        }
+        // Case 2: User left from playroom
+        if (i.userId == socket.id && i.playing == true) {
+          io.in(i.roomName).emit('opponent left', i.userName + ' has left ' + i.roomName);
+          Users.splice(el, 1);
+          result = 'playing game';
         }
       });
-      if (inPlay) return console.log('A user has left the gameroom');
+      console.log(115, result);
+
+      if (result == 'pending game') return console.log('A user has left prior to game start');
+      else if (result == 'playing game') return console.log('A user has left the gameroom');
+      else return console.log('A user has left the homepage.');
+
     } catch (err) {
-      console.log(89, err);
+      console.log(119, err);
     }
-    // User left from homepage
-    return console.log('A user has left the homepage.');
 
   });
 
