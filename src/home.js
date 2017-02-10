@@ -19,32 +19,30 @@ var home = new Vue({
     console.log('Home screen loaded!');
 
     // Trigger play action
-    socket.on('join msg', (userName, playerNo, roomName) => {
+    socket.on('join msg', (userName, playerNo, roomName, opponentName) => {
       console.log(12, userName, playerNo, roomName);
 
-      if (playerNo == 1) {
+      if (userName == this.name && playerNo == 1) {
         console.log(userName + ' is waiting for another player at ' + roomName);
-        home.waitScreen = true;
-        home.playerNo = 1;
-        home.timerCount();
+        this.waitScreen = true;
+        this.playerNo = 1;
+        this.timerCount();
       }
-      if (playerNo == 2) {
-        console.log(userName + ' let us play!');
-        home.waitScreen = true;
-        home.playerNo = 2;
-
-        // Trigger play socket
-        // socket.emit('play', roomName);
-
-        // location.href = location.href + 'play';
+      else {
+        this.waitScreen = true;
+        this.playerNo = 2;
       }
     });
 
     // Trigger playroom mode
-    socket.on('play begin', (msg) => {
-      console.log(msg);
-      home.waitScreen = false;
-      home.gameScreen = true;
+    socket.on('play begin', (wordsList, playerOneOpponent, playerTwoOpponent) => {
+      console.log(wordsList);
+      if (this.name == playerOneOpponent) {
+        Store.setOpponentName(playerTwoOpponent);
+      }
+      else Store.setOpponentName(playerOneOpponent);
+      this.waitScreen = false;
+      this.gameScreen = true;
     });
   },
   methods: {
@@ -57,15 +55,15 @@ var home = new Vue({
       socket.emit('join', this.name);
       // sessionStorage.setItem('name', this.name);
       Store.setUserName(this.name);
-      this.name = '';
+      // this.name = '';
       // location.href = location.href + 'play';
     },
     timerCount: function() {
-        this.seconds--;
-        if (home.gameScreen || this.seconds == 0) return console.log('game start!');
-        setTimeout(function() {
-          home.timerCount();
-        }, 1000);
+      this.seconds--;
+      if (home.gameScreen || this.seconds == 0) return console.log('game start!');
+      setTimeout(function() {
+        home.timerCount();
+      }, 1000);
     }
   }
 });
@@ -73,10 +71,16 @@ var home = new Vue({
 
 var play = new Vue({
   data: {
-    currentUser: '',
-    name: '',
-    typedWord: '',
-    matchedWord: '',
+    player: {
+      name: '',
+      score: 0,
+      typedWord: '',
+      matchedWord: ''
+    },
+    opponent: {
+      name: '',
+      score: 0
+    },
     isShake: false,
     gameScreen: false,
     wordApiUrl: Store.getWordsApiUrl(),
@@ -106,7 +110,8 @@ var play = new Vue({
             mappedList.push({
               id: i.id,
               word: i.word,
-              score: j[1]
+              score: j[1],
+              color: 'medium-purple'
             });
           }
         });
@@ -117,9 +122,10 @@ var play = new Vue({
     });
 
     // Socket #2 - Listen to other player's matched words
-    socket.on('player matched word emit', (player, word) => {
+    socket.on('player matched word emit', (player, word, score) => {
       console.log(player, word);
       play.clearWord(word);
+      if (player == this.opponent.name) this.opponent.score += score;
     });
 
     // Socket #3 - Listen to opponent left
@@ -130,16 +136,9 @@ var play = new Vue({
   },
   methods: {
     initGame: function(e) {
-      play.gameScreen = true;
-      this.name = Store.getUserName();
-
-      // TODO: Single Player Mode
-      // axios.get(this.wordApiUrl)
-      //   .then((res) => {
-      //     console.log(110, res);
-      //     this.words = res.data;
-      //   })
-      //   .catch((err) => console.log(err));
+      this.gameScreen = true;
+      this.player.name = Store.getUserName();
+      this.opponent.name = Store.getOpponentName();
 
       this.recognition = WebSpeech.init();
       this.recognition.start();
@@ -183,20 +182,50 @@ var play = new Vue({
     },
     submitMsg: function(e) {
       // NOTE: Including typed input for testing
-      var typedWord = this.typedWord.toLowerCase();
+      var typedWord = this.player.typedWord.toLowerCase();
       var recognisedWord = this.recognisedWord.toLowerCase();
 
       this.words.forEach((i, el) => {
         var checkedWord = i.word.toLowerCase();
         if (typedWord == checkedWord || recognisedWord == checkedWord) {
+
+          // update this player game state
+          this.player.matchedWord = checkedWord;
+          this.addScore(i.score);
+
           // remove from words array
-          this.matchedWord = checkedWord;
           this.words.splice(el, 1);
+
           // Notify opponent
-          socket.emit('player matched word', checkedWord);
+          socket.emit('player matched word', checkedWord, +i.score);
         }
       });
-      this.typedWord = '';
+      this.player.typedWord = '';
+    },
+    addScore: function(score) {
+      var oldScore = this.player.score;
+      var newScore = oldScore + score;
+      var animationFrame;
+
+      function animate(time) {
+        TWEEN.update(time)
+        animationFrame = requestAnimationFrame(animate)
+      }
+      new TWEEN.Tween({
+          tweeningNumber: oldScore
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .to({
+          tweeningNumber: newScore
+        }, 500)
+        .onUpdate(function() {
+          play.player.score = +this.tweeningNumber.toFixed(0)
+        })
+        .onComplete(function() {
+          cancelAnimationFrame(animationFrame)
+        })
+        .start();
+      animationFrame = requestAnimationFrame(animate)
     },
     clearWord: function(returnedWord) {
       var clear = returnedWord.toLowerCase();

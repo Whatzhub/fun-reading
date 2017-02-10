@@ -15,9 +15,6 @@ app.get('/log', (req, res) => {
   res.sendFile(__dirname + '/views/log.html');
 });
 
-app.get('/play', (req, res) => {
-  res.sendFile(__dirname + '/views/play.html');
-});
 
 // Web Sockets Paths
 const wordsApiUrl = 'http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=' + 1000000 + '&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=16&limit=' + 10 + '&api_key=' + 'a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5';
@@ -64,10 +61,16 @@ home.on('connection', (socket) => {
       });
 
       // Set Player 1 to gameplay mode
+      var playerOneOpponent;
+      var playerTwoOpponent;
       Users.forEach((i, el) => {
         if (i.roomName == roomName && i.playerNo == 1) {
           i.pending = false;
           i.playing = true;
+          playerTwoOpponent = i.userName;
+        }
+        if (i.roomName == roomName && i.playerNo == 2) {
+          playerOneOpponent = i.userName;
         }
       });
 
@@ -78,7 +81,8 @@ home.on('connection', (socket) => {
         .then((data) => {
           console.log(16, data);
           var wordsList = data;
-          io.in(roomName).emit('play begin', wordsList);
+          console.log(playerOneOpponent, playerTwoOpponent);
+          io.in(roomName).emit('play begin', wordsList, playerOneOpponent, playerTwoOpponent);
 
           // Reset playroom counter for new pending players
           playerNo = 0;
@@ -94,13 +98,13 @@ home.on('connection', (socket) => {
   });
 
   // Socket #2 - Player matched word successfully
-  socket.on('player matched word', (word) => {
+  socket.on('player matched word', (word, score) => {
     Users.forEach((i, el) => {
       if (i.userId == socket.id) {
-        io.in(i.roomName).emit('player matched word emit', i.userName, word)
+        io.in(i.roomName).emit('player matched word emit', i.userName, word, score)
       }
     })
-    console.log(word);
+    console.log(word, score);
   });
 
   // Socket #3 - Detect user disconnection
@@ -135,30 +139,6 @@ home.on('connection', (socket) => {
 
 });
 
-
-// var playroom = io.of('/player');
-// playroom.on('connection', (socket) => {
-//
-//   console.log('a user connected to playroom');
-//   playroom.emit('a user has connected to playroom');
-//   // console.log('socket info: ' + Object.keys(socket));
-//   // console.log(socket);
-//   // userIds.push(socket.id);
-//   // console.log(19, Users);
-//
-//   // TODO: close playroom if all user left
-//
-//
-//   socket.on('chat message', (msg) => {
-//     console.log('message: ' + msg);
-//     Users.forEach((i, el) => {
-//       if (socket.id == i.userId) {
-//         playroom.emit('chat message', msg, i.userName);
-//       }
-//     });
-//   });
-//
-// });
 
 server.listen(3000, () => {
   console.log('listening on *:3000');

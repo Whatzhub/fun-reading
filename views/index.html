@@ -47,7 +47,7 @@
 
           <div class="row">
             <div class="column center">
-              <input class="play-btn" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name"/>
+              <input class="play-btn" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name" />
               <a class="button" @click="submitName">PLAY</a>
             </div>
           </div>
@@ -73,21 +73,40 @@
   <!-- Play Screen View -->
   <section id="play" v-if="gameScreen">
     <div class="container">
-      <form action="" @submit.prevent :class="{'shake-slow': isShake}">
-        <input id="m" autocomplete="off" placeholder="type your word.." @keyup.enter="submitMsg" v-model="typedWord"  />
-        <button @click="submitMsg">Send</button>
-        <a class="button" href='/'>Back</a>
-        <p>Welcome, {{name}}</p>
-      </form>
+      <div class="row">
+        <div class="column">
+          <i class="fa fa-user-circle fa-2x"></i><span> {{player.name}}</span>
+          <i class="fa fa-star fa-2x"></i><span> {{player.score}}</span>
+        </div>
+
+        <div class="column">
+          <div class="right">
+            <i class="fa fa-star fa-2x"></i><span> {{opponent.score}}</span>
+            <i class="fa fa-user-circle fa-2x"></i><span> {{opponent.name}}</span>
+          </div>
+        </div>
+      </div>
 
       <ul class="no-bullets pt-50 center">
         <transition-group name="list-complete">
           <li v-for="i in words" :key="i.word" class="list-complete-item">
-            <h2>{{i.word}}</h2>
+            <h2 :class="[i.color]">{{i.word}}</h2>
             <span>{{i.score}}</span>
           </li>
         </transition-group>
       </ul>
+
+      <div class="row">
+        <div class="column center">
+
+          <form action="" @submit.prevent :class="{'shake-slow': isShake}">
+            <input id="m" autocomplete="off" placeholder="type your word.." @keyup.enter="submitMsg" v-model="player.typedWord" />
+            <button @click="submitMsg">Send</button>
+            <a class="button" href='/'>Back</a>
+          </form>
+
+        </div>
+      </div>
 
       <h3 v-show="speechResult">You spoke the word: {{recognisedWord}}</h3>
 
@@ -95,14 +114,12 @@
   </section>
   <!-- End of Play Screen View -->
 
-
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="http://cdn.jsdelivr.net/mojs/latest/mo.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
   <script src="js/app.bundle.js"></script>
-
 
 </body>
 
