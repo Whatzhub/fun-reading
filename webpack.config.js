@@ -4,7 +4,7 @@ module.exports = [
   // 1st Entry for JS config
   {
     entry: {
-      app: ['./src/home.js', './src/play.js'],
+      app: ['./src/home.js'],
       vendors: ['./vendor/js/vue.js'],
     },
     output: {

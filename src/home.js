@@ -35,12 +35,12 @@ var home = new Vue({
     });
 
     // Trigger playroom mode
-    socket.on('play begin', (wordsList, playerOneOpponent, playerTwoOpponent) => {
+    socket.on('play begin', (wordsList, playerTwo, playerOne) => {
       console.log(wordsList);
-      if (this.name == playerOneOpponent) {
-        Store.setOpponentName(playerTwoOpponent);
-      }
-      else Store.setOpponentName(playerOneOpponent);
+
+      if (this.name == playerOne) Store.setOpponentName(playerTwo);
+      else Store.setOpponentName(playerOne);
+
       this.waitScreen = false;
       this.gameScreen = true;
     });
@@ -74,13 +74,24 @@ var play = new Vue({
     player: {
       name: '',
       score: 0,
+      wordScore: 0,
+      showScore: false,
       typedWord: '',
-      matchedWord: ''
+      matchedWord: '',
+      lvZeroCount: 0,
+      lvOneCount: 0,
+      lvTwoCount: 0
     },
     opponent: {
       name: '',
-      score: 0
+      score: 0,
+      typedWord: '',
+      matchedWord: '',
+      lvZeroCount: 0,
+      lvOneCount: 0,
+      lvTwoCount: 0
     },
+    seconds: 30,
     isShake: false,
     gameScreen: false,
     wordApiUrl: Store.getWordsApiUrl(),
@@ -91,6 +102,11 @@ var play = new Vue({
     speechResult: false,
     speechStopped: false,
     speechError: false
+  },
+  computed: {
+    computedWords: function() {
+      return this.words.slice(0, 5);
+    }
   },
   mounted: function() {
     console.log('Play screen mounted!');
@@ -107,11 +123,13 @@ var play = new Vue({
         var wordLen = i.word.length;
         scoreMap.forEach((j, el2) => {
           if (wordLen == j[0]) {
+            // Push into mappedList
             mappedList.push({
               id: i.id,
               word: i.word,
               score: j[1],
-              color: 'medium-purple'
+              color: j[3],
+              show: false
             });
           }
         });
@@ -137,6 +155,7 @@ var play = new Vue({
   methods: {
     initGame: function(e) {
       this.gameScreen = true;
+      this.timerCount();
       this.player.name = Store.getUserName();
       this.opponent.name = Store.getOpponentName();
 
@@ -185,6 +204,7 @@ var play = new Vue({
       var typedWord = this.player.typedWord.toLowerCase();
       var recognisedWord = this.recognisedWord.toLowerCase();
 
+      // Submit Word Match Check
       this.words.forEach((i, el) => {
         var checkedWord = i.word.toLowerCase();
         if (typedWord == checkedWord || recognisedWord == checkedWord) {
@@ -192,6 +212,7 @@ var play = new Vue({
           // update this player game state
           this.player.matchedWord = checkedWord;
           this.addScore(i.score);
+          this.showScore(i.score);
 
           // remove from words array
           this.words.splice(el, 1);
@@ -200,7 +221,25 @@ var play = new Vue({
           socket.emit('player matched word', checkedWord, +i.score);
         }
       });
+
       this.player.typedWord = '';
+
+      // End game if no more words
+      if (this.words.length == 0) alert('No more words left! Round 2 begins!');
+    },
+    timerCount: function() {
+      this.seconds--;
+      if (this.seconds == 0) return alert('Times up! Thanks for playing.');
+      setTimeout(function() {
+        play.timerCount();
+      }, 1000);
+    },
+    showScore: function(score) {
+      this.player.wordScore = score;
+      this.player.showScore = true;
+      setTimeout(function() {
+        play.player.showScore = false;
+      }, 1000);
     },
     addScore: function(score) {
       var oldScore = this.player.score;

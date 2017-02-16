@@ -74,35 +74,45 @@
   <section id="play" v-if="gameScreen">
     <div class="container">
       <div class="row">
-        <div class="column">
-          <i class="fa fa-user-circle fa-2x"></i><span> {{player.name}}</span>
-          <i class="fa fa-star fa-2x"></i><span> {{player.score}}</span>
-        </div>
+        <div class="column column-100">
+          <span><i class="fa fa-user-circle fa-2x"></i> {{player.name}} </span>
+          <span class="pl-10"><i class="fa fa-star fa-2x"></i> {{player.score}}</span>
+          <span class="pl-10" v-show="player.showScore"> +{{player.wordScore}}pts!</span>
 
-        <div class="column">
-          <div class="right">
-            <i class="fa fa-star fa-2x"></i><span> {{opponent.score}}</span>
-            <i class="fa fa-user-circle fa-2x"></i><span> {{opponent.name}}</span>
-          </div>
+          <span class="float-right pl-10"><i class="fa fa-star fa-2x"></i> {{opponent.score}}</span>
+          <span class="float-right"><i class="fa fa-user-circle fa-2x"></i> {{opponent.name}}</span>
+        </div>
+      </div>
+
+      <div class="row pt-20">
+        <div class="column column-100">
+          <span><i class="fa fa-square fa-2x indigo"></i> {{player.score}} </span>
+          <span class="pl-10"><i class="fa fa-square fa-2x chocolate"></i> {{player.score}}</span>
+          <span class="pl-10"><i class="fa fa-square fa-2x limegreen"></i> {{player.score}}</span>
+
+          <span class="float-right pl-10"><i class="fa fa-square fa-2x indigo"></i> {{opponent.score}}</span>
+          <span class="float-right pl-10"><i class="fa fa-square fa-2x chocolate"></i> {{opponent.score}}</span>
+          <span class="float-right"><i class="fa fa-square fa-2x limegreen"></i> {{opponent.score}}</span>
         </div>
       </div>
 
       <ul class="no-bullets pt-50 center">
         <transition-group name="list-complete">
-          <li v-for="i in words" :key="i.word" class="list-complete-item">
+          <li v-for="i in computedWords" :key="i.word" class="list-complete-item">
             <h2 :class="[i.color]">{{i.word}}</h2>
-            <span>{{i.score}}</span>
           </li>
         </transition-group>
       </ul>
 
-      <div class="row">
+      <div class="row pt-50">
         <div class="column center">
 
           <form action="" @submit.prevent :class="{'shake-slow': isShake}">
             <input id="m" autocomplete="off" placeholder="type your word.." @keyup.enter="submitMsg" v-model="player.typedWord" />
             <button @click="submitMsg">Send</button>
             <a class="button" href='/'>Back</a>
+            <h3>Words Left: {{words.length}}</h3>
+            <h5> Time left: {{ seconds }} secs</h5>
           </form>
 
         </div>
@@ -117,7 +127,6 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="http://cdn.jsdelivr.net/mojs/latest/mo.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
   <script src="js/app.bundle.js"></script>
 
