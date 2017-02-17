@@ -24,6 +24,9 @@ img {
 .right {
   text-align: right; }
 
+.pl-10 {
+  padding-left: 10px; }
+
 .pb-20 {
   padding-bottom: 20px; }
 
@@ -62,6 +65,27 @@ img {
 
 #play .no-bullets {
   list-style-type: none; }
+
+#play .indigo {
+  color: indigo; }
+
+#play .chocolate {
+  color: chocolate; }
+
+#play .limegreen {
+  color: limegreen; }
+
+#play .round-two {
+  font-size: 3rem; }
+
+#play .round-two-bg {
+  background-color: #aaa7af; }
+
+#play .round-three {
+  font-size: 2rem; }
+
+#play .round-three-bg {
+  background-color: #76747a; }
 
 #log {
   /* -----------------------------------------------
