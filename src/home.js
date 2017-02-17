@@ -1,6 +1,7 @@
 // Declare external modules
 import WebSpeech from './js/webSpeech';
 import Store from './js/store';
+import Modal from './js/modal';
 var socket = io('/');
 
 // Declare home View
@@ -12,11 +13,22 @@ var home = new Vue({
     homeScreen: false,
     waitScreen: false,
     gameScreen: false,
-    seconds: 10,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 72000,
     playerNo: 0
   },
   mounted: function() {
     console.log('Home screen loaded!');
+
+    // set content
+    Modal.setContent('<h1>here\'s some content</h1>');
+    Modal.addFooterBtn('Button label', 'tingle-btn tingle-btn--primary', function() {
+      Modal.close();
+    });
+    Modal.addFooterBtn('Dangerous action !', 'tingle-btn tingle-btn--danger', function() {
+      Modal.close();
+    });
 
     // Trigger play action
     socket.on('join msg', (userName, playerNo, roomName, opponentName) => {
@@ -27,8 +39,7 @@ var home = new Vue({
         this.waitScreen = true;
         this.playerNo = 1;
         this.timerCount();
-      }
-      else {
+      } else {
         this.waitScreen = true;
         this.playerNo = 2;
       }
@@ -36,9 +47,10 @@ var home = new Vue({
 
     // Trigger playroom mode
     socket.on('play begin', (wordsList, playerTwo, playerOne) => {
-      console.log(wordsList);
-
-      if (this.name == playerOne) Store.setOpponentName(playerTwo);
+      console.log(56, this.name, playerTwo, playerOne);
+      if (this.name == playerOne) {
+        Store.setOpponentName(playerTwo);
+      }
       else Store.setOpponentName(playerOne);
 
       this.waitScreen = false;
@@ -55,15 +67,19 @@ var home = new Vue({
       socket.emit('join', this.name);
       // sessionStorage.setItem('name', this.name);
       Store.setUserName(this.name);
-      // this.name = '';
-      // location.href = location.href + 'play';
     },
     timerCount: function() {
-      this.seconds--;
-      if (home.gameScreen || this.seconds == 0) return console.log('game start!');
-      setTimeout(function() {
+      this.milliseconds -= 1000;
+      if (home.gameScreen || this.milliseconds == 0) return console.log('game start!');
+
+      this.minutes = moment.duration(home.milliseconds).minutes();
+      this.seconds = moment.duration(home.milliseconds).seconds();
+      setTimeout(() => {
         home.timerCount();
       }, 1000);
+    },
+    openScoreboard: function() {
+      Modal.open();
     }
   }
 });
@@ -78,22 +94,27 @@ var play = new Vue({
       showScore: false,
       typedWord: '',
       matchedWord: '',
-      lvZeroCount: 0,
-      lvOneCount: 0,
-      lvTwoCount: 0
+      lvlZeroCount: 0,
+      lvlOneCount: 0,
+      lvlTwoCount: 0
     },
     opponent: {
       name: '',
       score: 0,
       typedWord: '',
       matchedWord: '',
-      lvZeroCount: 0,
-      lvOneCount: 0,
-      lvTwoCount: 0
+      lvlZeroCount: 0,
+      lvlOneCount: 0,
+      lvlTwoCount: 0
     },
     seconds: 30,
     isShake: false,
     gameScreen: false,
+    rounds: {
+      stage: 1, // 1 - 3
+      class: 'round-one', // 'round-two', 'round-three'
+      bgClass: 'round-one-bg', // 'round-two-bg', 'round-three-bg'
+    },
     wordApiUrl: Store.getWordsApiUrl(),
     words: [],
     // Web Speech API Data
@@ -104,12 +125,19 @@ var play = new Vue({
     speechError: false
   },
   computed: {
-    computedWords: function() {
+    roundOne: function() {
       return this.words.slice(0, 5);
+    },
+    roundTwo: function() {
+      return this.words.slice(0, 10);
+    },
+    roundThree: function() {
+      return this.words.slice(0, 20);
     }
   },
   mounted: function() {
     console.log('Play screen mounted!');
+    console.log(144, document.getElementsByTagName('body'));
 
     // Socket #1 - Trigger playroom mode
     socket.on('play begin', (words) => {
@@ -128,8 +156,8 @@ var play = new Vue({
               id: i.id,
               word: i.word,
               score: j[1],
-              color: j[3],
-              show: false
+              level: j[2],
+              color: j[3]
             });
           }
         });
@@ -158,6 +186,7 @@ var play = new Vue({
       this.timerCount();
       this.player.name = Store.getUserName();
       this.opponent.name = Store.getOpponentName();
+      console.log(188, this.opponent.name);
 
       this.recognition = WebSpeech.init();
       this.recognition.start();
@@ -213,23 +242,39 @@ var play = new Vue({
           this.player.matchedWord = checkedWord;
           this.addScore(i.score);
           this.showScore(i.score);
+          this.addScoreTiles(i.level);
 
           // remove from words array
           this.words.splice(el, 1);
 
           // Notify opponent
-          socket.emit('player matched word', checkedWord, +i.score);
+          socket.emit('player matched word', checkedWord, +i.score, +i.level);
         }
       });
 
       this.player.typedWord = '';
 
       // End game if no more words
-      if (this.words.length == 0) alert('No more words left! Round 2 begins!');
+      if (this.words.length == 0) console.log('No more words left! Game ends.');
     },
     timerCount: function() {
       this.seconds--;
-      if (this.seconds == 0) return alert('Times up! Thanks for playing.');
+      var bg = document.getElementsByTagName('body')[0].style;
+      if (this.seconds == 20) {
+        console.log('2nd round begins!');
+        this.rounds.stage = 2;
+        this.rounds.class = 'round-two';
+        bg.backgroundColor = 'aliceblue';
+      }
+      if (this.seconds == 10) {
+        console.log('Final round begins!');
+        this.rounds.stage = 3;
+        bg.backgroundColor = 'lightcyan';
+      }
+      if (this.seconds == 0) {
+        bg.backgroundColor = '#DFDBE5';
+        return console.log('Times up! Thanks for playing.');
+      }
       setTimeout(function() {
         play.timerCount();
       }, 1000);
@@ -266,6 +311,11 @@ var play = new Vue({
         .start();
       animationFrame = requestAnimationFrame(animate)
     },
+    addScoreTiles: function(scoreTile) {
+      if (scoreTile == 0) this.player.lvlZeroCount++;
+      if (scoreTile == 1) this.player.lvlOneCount++;
+      if (scoreTile == 2) this.player.lvlTwoCount++;
+    },
     clearWord: function(returnedWord) {
       var clear = returnedWord.toLowerCase();
 
@@ -283,6 +333,7 @@ var play = new Vue({
 // Initialise Home View
 if (document.getElementById('home') != null) {
   console.log('Home screen is present');
+
   home.$mount('#home');
   play.$mount('#play');
 }

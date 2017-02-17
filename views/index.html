@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="http://csshake.surge.sh/csshake.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.4/milligram.min.css">
   <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/tingle.min.css">
   <link rel="stylesheet" href="css/app.bundle.css">
 </head>
 
@@ -28,7 +29,7 @@
         <div class="column column-50 column-offset-25">
           <div class="row">
             <div class="column center">
-              <h5> Time before game starts: {{ seconds }} secs</h5>
+              <h5> Time before game starts: <span v-if="minutes !=0">{{minutes}} min</span> {{ seconds }} secs</h5>
               <h5> Waiting for players... {{playerNo}} / 2</h5>
             </div>
           </div>
@@ -61,9 +62,20 @@
           </div>
         </div>
 
-        <a class="button button-clear fixed-top-right" href="/log">
-          <i class="fa fa-book fa-2x" aria-hidden="true"></i> Changelog
-        </a>
+        <div class="fixed-top-right">
+          <div>
+            <a class="button button-clear" href="/log">
+              <i class="fa fa-book fa-2x" aria-hidden="true"></i> Changelog
+            </a>
+          </div>
+          <div>
+            <a class="button button-clear" @click="openScoreboard">
+              <i class="fa fa-star-o fa-2x" aria-hidden="true"></i> Scoreboard
+            </a>
+          </div>
+        </div>
+
+
       </div>
     </div>
 
@@ -86,9 +98,9 @@
 
       <div class="row pt-20">
         <div class="column column-100">
-          <span><i class="fa fa-square fa-2x indigo"></i> {{player.score}} </span>
-          <span class="pl-10"><i class="fa fa-square fa-2x chocolate"></i> {{player.score}}</span>
-          <span class="pl-10"><i class="fa fa-square fa-2x limegreen"></i> {{player.score}}</span>
+          <span><i class="fa fa-square fa-2x indigo"></i> {{player.lvlTwoCount}} </span>
+          <span class="pl-10"><i class="fa fa-square fa-2x chocolate"></i> {{player.lvlOneCount}}</span>
+          <span class="pl-10"><i class="fa fa-square fa-2x limegreen"></i> {{player.lvlZeroCount}}</span>
 
           <span class="float-right pl-10"><i class="fa fa-square fa-2x indigo"></i> {{opponent.score}}</span>
           <span class="float-right pl-10"><i class="fa fa-square fa-2x chocolate"></i> {{opponent.score}}</span>
@@ -98,8 +110,14 @@
 
       <ul class="no-bullets pt-50 center">
         <transition-group name="list-complete">
-          <li v-for="i in computedWords" :key="i.word" class="list-complete-item">
-            <h2 :class="[i.color]">{{i.word}}</h2>
+          <li v-if="rounds.stage == 1" v-for="i in roundOne" :key="i.word" class="list-complete-item">
+            <h2 :class="[i.color, rounds.class]">{{i.word}}</h2>
+          </li>
+          <li v-if="rounds.stage == 2" v-for="i in roundTwo" :key="i.word" class="list-complete-item">
+            <h2 :class="[i.color, rounds.class]">{{i.word}}</h2>
+          </li>
+          <li v-if="rounds.stage == 3" v-for="i in roundThree" :key="i.word" class="list-complete-item">
+            <h2 :class="[i.color, rounds.class]">{{i.word}}</h2>
           </li>
         </transition-group>
       </ul>
@@ -112,7 +130,7 @@
             <button @click="submitMsg">Send</button>
             <a class="button" href='/'>Back</a>
             <h3>Words Left: {{words.length}}</h3>
-            <h5> Time left: {{ seconds }} secs</h5>
+            <h5> <i class="fa fa-clock-o fa-2x"></i> Time left: {{ seconds }} secs</h5>
           </form>
 
         </div>
@@ -125,9 +143,13 @@
   <!-- End of Play Screen View -->
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://unpkg.com/vue/dist/vue.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
+  <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/moment.js"></script>
+  <script src="js/axios.js"></script>
+  <script src="js/tingle.min.js"></script>
   <script src="js/app.bundle.js"></script>
 
 </body>
