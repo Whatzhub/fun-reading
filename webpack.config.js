@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = [
@@ -5,11 +6,11 @@ module.exports = [
   {
     entry: {
       app: ['./src/home.js'],
-      vendors: ['./vendor/js/vue.js'],
+      // vendors: ['./vendor/js/vue.js']
     },
     output: {
       path: './dist/js',
-      filename: '[name].bundle.js',
+      filename: '[name].bundle.js'
     },
     module: {
       loaders: [{
@@ -35,7 +36,7 @@ module.exports = [
       }]
     },
     plugins: [
-      new ExtractTextPlugin("app.bundle.css"),
+      new ExtractTextPlugin("app.bundle.css")
     ]
   }
 ];

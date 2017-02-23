@@ -1,7 +1,7 @@
 // Declare external modules
 import WebSpeech from './js/webSpeech';
 import Store from './js/store';
-import Modal from './js/modal';
+import {Modal, modalContent} from './js/modal';
 var socket = io('/');
 
 // Declare home View
@@ -20,15 +20,8 @@ var home = new Vue({
   },
   mounted: function() {
     console.log('Home screen loaded!');
-
-    // set content
-    Modal.setContent('<h1>here\'s some content</h1>');
-    Modal.addFooterBtn('Button label', 'tingle-btn tingle-btn--primary', function() {
-      Modal.close();
-    });
-    Modal.addFooterBtn('Dangerous action !', 'tingle-btn tingle-btn--danger', function() {
-      Modal.close();
-    });
+    // set modal content
+    Modal.setContent(modalContent);
 
     // Trigger play action
     socket.on('join msg', (userName, playerNo, roomName, opponentName) => {
@@ -39,9 +32,11 @@ var home = new Vue({
         this.waitScreen = true;
         this.playerNo = 1;
         this.timerCount();
-      } else {
+      }
+      else {
         this.waitScreen = true;
         this.playerNo = 2;
+        this.timerCount();
       }
     });
 
@@ -87,6 +82,8 @@ var home = new Vue({
 
 var play = new Vue({
   data: {
+
+    // Players Data
     player: {
       name: '',
       score: 0,
@@ -96,7 +93,10 @@ var play = new Vue({
       matchedWord: '',
       lvlZeroCount: 0,
       lvlOneCount: 0,
-      lvlTwoCount: 0
+      lvlTwoCount: 0,
+      lvlZeroModifier: 1,
+      lvlOneModifier: 1,
+      lvlTwoModifier: 1
     },
     opponent: {
       name: '',
@@ -105,20 +105,27 @@ var play = new Vue({
       matchedWord: '',
       lvlZeroCount: 0,
       lvlOneCount: 0,
-      lvlTwoCount: 0
+      lvlTwoCount: 0,
+      lvlZeroModifier: 1,
+      lvlOneModifier: 1,
+      lvlTwoModifier: 1
     },
-    seconds: 30,
-    isShake: false,
-    gameScreen: false,
+
+    // General Gameplay Data
     rounds: {
       stage: 1, // 1 - 3
       class: 'round-one', // 'round-two', 'round-three'
-      bgClass: 'round-one-bg', // 'round-two-bg', 'round-three-bg'
     },
+    seconds: 30,
+    isShake: false,
+    isLvlOneTile: false,
+    isLvlZeroTile: false,
+    gameScreen: false,
     wordApiUrl: Store.getWordsApiUrl(),
     words: [],
+
     // Web Speech API Data
-    recognition: {},
+    recognition: WebSpeech.init(),
     recognisedWord: '',
     speechResult: false,
     speechStopped: false,
@@ -126,18 +133,19 @@ var play = new Vue({
   },
   computed: {
     roundOne: function() {
-      return this.words.slice(0, 5);
-    },
-    roundTwo: function() {
       return this.words.slice(0, 10);
     },
-    roundThree: function() {
+    roundTwo: function() {
       return this.words.slice(0, 20);
+    },
+    roundThree: function() {
+      return this.words.slice(0, this.words.length - 1);
     }
   },
   mounted: function() {
     console.log('Play screen mounted!');
     console.log(144, document.getElementsByTagName('body'));
+    console.log(145, document.getElementsByTagName('body')[0].style.backgroundImage)
 
     // Socket #1 - Trigger playroom mode
     socket.on('play begin', (words) => {
@@ -168,10 +176,13 @@ var play = new Vue({
     });
 
     // Socket #2 - Listen to other player's matched words
-    socket.on('player matched word emit', (player, word, score) => {
-      console.log(player, word);
+    socket.on('player matched word emit', (player, word, score, wordLvl) => {
+      console.log(player, word, score, wordLvl);
       play.clearWord(word);
-      if (player == this.opponent.name) this.opponent.score += score;
+      if (player == this.opponent.name) {
+        this.opponent.score += score;
+        this.addScoreTiles(wordLvl, this.opponent);
+      }
     });
 
     // Socket #3 - Listen to opponent left
@@ -188,7 +199,6 @@ var play = new Vue({
       this.opponent.name = Store.getOpponentName();
       console.log(188, this.opponent.name);
 
-      this.recognition = WebSpeech.init();
       this.recognition.start();
 
       this.recognition.onresult = function(ev) {
@@ -207,7 +217,7 @@ var play = new Vue({
         play.recognisedWord = '';
         play.recognition.stop();
 
-        if (!play.speechError) {
+        if (!play.speechError || !play.speechStopped) {
           setTimeout(function() {
             play.recognition.start();
             play.speechStopped = false;
@@ -219,7 +229,7 @@ var play = new Vue({
         play.speechError = true;
         console.log('Web speech recognition result error...');
         console.log(e);
-        if (!play.speechStopped) {
+        if (!play.speechStopped || !play.speechError) {
           setTimeout(function() {
             play.recognition.start();
             play.speechError = false;
@@ -231,53 +241,72 @@ var play = new Vue({
     submitMsg: function(e) {
       // NOTE: Including typed input for testing
       var typedWord = this.player.typedWord.toLowerCase();
+      var typedWordArr = typedWord.split(' ');
+      console.log(245, typedWordArr);
       var recognisedWord = this.recognisedWord.toLowerCase();
+      var cumulateScore = 0;
+      var cumulateWords = [];
 
       // Submit Word Match Check
-      this.words.forEach((i, el) => {
-        var checkedWord = i.word.toLowerCase();
-        if (typedWord == checkedWord || recognisedWord == checkedWord) {
+      var index = this.words.length;
+      while (index--) {
+        this.words.forEach((i, el) => {
+          var checkedWord = i.word.toLowerCase();
+          typedWordArr.forEach((j, el2) => {
+            if (j == checkedWord || recognisedWord == checkedWord) {
 
-          // update this player game state
-          this.player.matchedWord = checkedWord;
-          this.addScore(i.score);
-          this.showScore(i.score);
-          this.addScoreTiles(i.level);
+              // update this player game state
+              this.player.matchedWord = checkedWord;
+              cumulateScore += i.score;
+              this.addScoreTiles(i.level, this.player);
 
-          // remove from words array
-          this.words.splice(el, 1);
+              // remove from words array
+              this.words.splice(el, 1);
 
-          // Notify opponent
-          socket.emit('player matched word', checkedWord, +i.score, +i.level);
-        }
-      });
+              // Notify opponent
+              socket.emit('player matched word', checkedWord, +i.score, +i.level);
+            }
+          });
+        });
+      }
 
+      this.addScore(cumulateScore);
+      this.showScore(cumulateScore);
+      // TODO: Enable Streak if word match for tile > multiples of 5
       this.player.typedWord = '';
 
       // End game if no more words
-      if (this.words.length == 0) console.log('No more words left! Game ends.');
+      if (this.words.length == 0) return this.endGame();
     },
     timerCount: function() {
       this.seconds--;
+
       var bg = document.getElementsByTagName('body')[0].style;
       if (this.seconds == 20) {
         console.log('2nd round begins!');
         this.rounds.stage = 2;
         this.rounds.class = 'round-two';
-        bg.backgroundColor = 'aliceblue';
+        // bg.backgroundColor = 'aliceblue';
+        bg.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`;
       }
       if (this.seconds == 10) {
         console.log('Final round begins!');
         this.rounds.stage = 3;
-        bg.backgroundColor = 'lightcyan';
+        // bg.backgroundColor = 'lightcyan';
+        bg.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='96' viewBox='0 0 60 96'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 10a6 6 0 0 1 12 0v12a6 6 0 0 1-6 6 6 6 0 0 0-6 6 6 6 0 0 1-12 0 6 6 0 0 0-6-6 6 6 0 0 1-6-6V10a6 6 0 1 1 12 0 6 6 0 0 0 12 0zm24 78a6 6 0 0 1-6-6 6 6 0 0 0-6-6 6 6 0 0 1-6-6V58a6 6 0 1 1 12 0 6 6 0 0 0 6 6v24zM0 88V64a6 6 0 0 0 6-6 6 6 0 0 1 12 0v12a6 6 0 0 1-6 6 6 6 0 0 0-6 6 6 6 0 0 1-6 6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`;
       }
       if (this.seconds == 0) {
         bg.backgroundColor = '#DFDBE5';
-        return console.log('Times up! Thanks for playing.');
+        // TODO: Endgame logic
+        return this.endGame();
       }
       setTimeout(function() {
         play.timerCount();
       }, 1000);
+    },
+    endGame: function() {
+      console.log('endgame init..');
+
     },
     showScore: function(score) {
       this.player.wordScore = score;
@@ -311,10 +340,36 @@ var play = new Vue({
         .start();
       animationFrame = requestAnimationFrame(animate)
     },
-    addScoreTiles: function(scoreTile) {
-      if (scoreTile == 0) this.player.lvlZeroCount++;
-      if (scoreTile == 1) this.player.lvlOneCount++;
-      if (scoreTile == 2) this.player.lvlTwoCount++;
+    addScoreTiles: function(scoreTile, player) {
+      if (scoreTile == 0) {
+        player.lvlZeroCount++;
+        this.isLvlZeroTile = true;
+        setTimeout(() => {
+          this.isLvlZeroTile = false;
+        }, 1000);
+        if (player.lvlZeroCount != 0 && (player.lvlZeroCount / 5) % 1 == 0) {
+          player.lvlZeroModifier *= 1.2;
+          player.lvlZeroModifier = player.lvlZeroModifier.toFixed(1);
+        }
+      }
+      if (scoreTile == 1) {
+        player.lvlOneCount++;
+        this.isLvlOneTile = true;
+        setTimeout(() => {
+          this.isLvlOneTile = false;
+        }, 1000);
+        if (player.lvlOneCount != 0 && (player.lvlOneCount / 5) % 1 == 0) {
+          player.lvlOneModifier *= 1.2;
+          player.lvlOneModifier = player.lvlOneModifier.toFixed(1);
+        }
+      }
+      if (scoreTile == 2) {
+        player.lvlTwoCount++;
+        if (player.lvlTwoCount != 0 && (player.lvlTwoCount / 5) % 1 == 0) {
+          player.lvlTwoModifier *= 1.2;
+          player.lvlTwoModifier = player.lvlTwoModifier.toFixed(1);
+        }
+      }
     },
     clearWord: function(returnedWord) {
       var clear = returnedWord.toLowerCase();
