@@ -18,7 +18,7 @@ app.get('/log', (req, res) => {
 
 // Web Sockets Paths
 const wordnikApiKey = 'c61946c3146a862c213773d7a1a0a0aa8991e1324a5e34738';
-const wordsApiUrl = 'http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=' + 100000 + '&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=2&maxLength=16&limit=' + 50 + '&api_key=' + wordnikApiKey;
+const wordsApiUrl = 'http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=false&minCorpusCount=' + 100000 + '&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=2&maxLength=16&limit=' + 30 + '&api_key=' + wordnikApiKey;
 const Users = [];
 const words = [];
 var playerNo = 0;
@@ -80,14 +80,20 @@ home.on('connection', (socket) => {
 
       Helpers.download(wordsApiUrl)
         .then((data) => {
-          console.log(16, data);
+          console.log('Game started for ' + roomNo);
           var wordsList = data;
           console.log(playerOneOpponent, playerTwoOpponent);
           io.in(roomName).emit('play begin', wordsList, playerOneOpponent, playerTwoOpponent);
 
+          // TODO: Emit gameroom playing engine
+          // 1. Countdown timer of 60 seconds
+          initGame(60, roomName);
+
+
           // Reset playroom counter for new pending players
           playerNo = 0;
           roomNo++;
+          if (roomNo == 1000) roomNo = 0;
           console.log('Updated Current Users: ' + JSON.stringify(Users, null, '  '));
           console.log('Rooms: ' + JSON.stringify(io.sockets.adapter.rooms, null, '  '));
 
@@ -98,12 +104,24 @@ home.on('connection', (socket) => {
     }
   });
 
+  function initGame(time, roomName) {
+    console.log(108, time);
+    if (time == 0) {
+      io.in(roomName).emit('game end', 'end');
+      return console.log(roomName + ' has ended!');
+    }
+    setTimeout(() => {
+      initGame(--time, roomName);
+      io.in(roomName).emit('game timer', time);
+    }, 1000);
+  }
+
   // Socket #2 - Player matched word successfully
-  socket.on('player matched word', (word, score, level) => {
+  socket.on('player matched word', (word, score, level, count) => {
     Users.forEach((i, el) => {
       if (i.userId == socket.id) {
-        io.in(i.roomName).emit('player matched word emit', i.userName, word, score, level)
-        console.log(i.userName, word, score, level);
+        io.in(i.roomName).emit('player matched word emit', i.userName, word, score, level, count)
+        console.log(i.userName, word, score, level, count);
       }
     })
 

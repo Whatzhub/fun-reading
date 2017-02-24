@@ -1,14 +1,14 @@
 // instanciate new modal
-var Modal = new tingle.modal({
+var scoreBoardModal = new tingle.modal({
     footer: true,
     stickyFooter: false,
     closeLabel: "Close",
     cssClass: ['custom-class-1', 'custom-class-2'],
     onOpen: function() {
-        console.log('modal open');
+        console.log('scoreboard modal open');
     },
     onClose: function() {
-        console.log('modal closed');
+        console.log('scoreboard modal closed');
     },
     beforeClose: function() {
         // here's goes some logic
@@ -18,7 +18,7 @@ var Modal = new tingle.modal({
     }
 });
 
-var modalContent = `
+var scoreBoardModalContent = `
 <h1>Scoreboard</h1>
 <table>
   <thead>
@@ -93,4 +93,4 @@ var modalContent = `
   </tbody>
 </table>`;
 
-export {Modal, modalContent};
+export {scoreBoardModal, scoreBoardModalContent};

@@ -99,11 +99,25 @@
       </div>
 
       <!-- 2nd row of player statistics -->
-      <div class="row pt-20">
+      <div class="row">
         <div class="column column-100">
-          <span><i class="fa fa-square fa-2x indigo"></i> {{player.lvlTwoCount}} </span>
-          <span class="pl-10"><i class="fa fa-square fa-2x chocolate" :class="{'fa-spin': isLvlOneTile}"></i> {{player.lvlOneCount}}</span>
-          <span class="pl-10"><i class="fa fa-square fa-2x limegreen" :class="{'fa-spin': isLvlZeroTile}"></i> {{player.lvlZeroCount}}</span>
+
+          <span class="fa-stack fa-1x fa-md" :class="{'bounce': player.isLvlTwoTile}">
+            <i class="fa fa-square fa-stack-2x indigo"></i>
+            <span class="fa fa-stack-1x">{{player.lvlTwoCount}}</span>
+          </span>
+
+          <span class="fa-stack fa-1x fa-md" :class="{'bounce': player.isLvlOneTile}">
+            <i class="fa fa-square fa-stack-2x chocolate"></i>
+            <span class="fa fa-stack-1x">{{player.lvlOneCount}}</span>
+          </span>
+
+          <span class="fa-stack fa-1x fa-md" :class="{'bounce': player.isLvlZeroTile}">
+            <i class="fa fa-square fa-stack-2x limegreen"></i>
+            <span class="fa fa-stack-1x">{{player.lvlZeroCount}}</span>
+          </span>
+
+          <!-- <span class="pl-10"><i class="fa fa-square fa-2x limegreen" :class="{'fa-spin': player.isLvlZeroTile}"></i> {{player.lvlZeroCount}}</span> -->
 
           <span class="float-right pl-10"><i class="fa fa-square fa-2x indigo"></i> {{opponent.lvlTwoCount}}</span>
           <span class="float-right pl-10"><i class="fa fa-square fa-2x chocolate"></i> {{opponent.lvlOneCount}}</span>
@@ -112,26 +126,13 @@
       </div>
 
       <!-- 3rd row of player statistics -->
-      <div class="row pt-20">
-        <div class="column column-100">
-          <span><i class="fa fa-fire fa-2x indigo"></i> x {{player.lvlTwoModifier}} </span>
-          <span class="pl-10"><i class="fa fa-fire fa-2x chocolate"></i> x {{player.lvlOneModifier}}</span>
-          <span class="pl-10"><i class="fa fa-fire fa-2x limegreen"></i> x {{player.lvlZeroModifier}}</span>
-
-          <span class="float-right pl-10"><i class="fa fa-fire fa-2x indigo"></i> {{opponent.lvlTwoCount}}</span>
-          <span class="float-right pl-10"><i class="fa fa-fire fa-2x chocolate"></i> {{opponent.lvlOneCount}}</span>
-          <span class="float-right"><i class="fa fa-fire fa-2x limegreen"></i> {{opponent.lvlZeroCount}}</span>
-        </div>
-      </div>
-
-      <!-- 4th row of player statistics -->
       <div class="row">
-        <div class="column column-100">
-          <span><img src="images/flame-01.gif" alt="streak" height="42" width="42"> x5 streak! </span>
-          <span class="float-right"><img src="images/flame-01.gif" alt="streak" height="42" width="42"> x5 streak! </span>
+        <div class="column column-100" v-show="player.bonusWords > 0">
+          <span><img src="images/flame-01.gif" alt="streak" height="42" width="42"> {{player.bonusWords}} word combo +{{player.bonusPercent}}%! </span>
         </div>
       </div>
 
+      <!-- Gameplay Words List -->
       <ul class="no-bullets pt-50 center">
         <transition-group name="list-complete">
           <li v-if="rounds.stage == 1" v-for="i in roundOne" :key="i.word" class="list-complete-item">
@@ -152,7 +153,7 @@
           <form action="" @submit.prevent :class="{'shake-slow': isShake}">
             <input id="m" autocomplete="off" placeholder="type your word.." @keyup.enter="submitMsg" v-model="player.typedWord" />
             <a class="button" href='/'>Back</a>
-            <h3>Words Left: {{words.length}}</h3>
+            <h3>Words Left: {{words.length - 1}}</h3>
             <h5> <i class="fa fa-clock-o fa-2x"></i> Time left: {{ seconds }} secs</h5>
           </form>
 

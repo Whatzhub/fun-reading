@@ -3,11 +3,40 @@
   display: inline-block;
   margin-right: 20px;
 }
-.list-complete-enter, .list-complete-leave-to
-/* .list-complete-leave-active for <2.1.8 */ {
+/* .list-complete-leave-active for <2.1.8 */
+.list-complete-enter,
+.list-complete-leave-to {
   opacity: 0;
   transform: translateY(30px);
 }
+
 .list-complete-leave-active {
   position: absolute;
+}
+@-webkit-keyframes bounce {
+  0% {
+    transform: scale(1,1) translate(0px, 0px);
+  }
+
+  30% {
+    transform: scale(1,0.8) translate(0px, 10px);
+  }
+
+  75% {
+    transform: scale(1,1.1) translate(0px, -25px);
+  }
+
+  100% {
+    transform: scale(1,1) translate(0px, 0px);
+  }
+}
+
+.bounce {
+  // text-align: center;
+  // margin: 100px auto 0;
+  // height: 20px;
+  // width: 150px;
+  // padding: 20px;
+  // background: tomato;
+  -webkit-animation: bounce 0.5s;
 }
