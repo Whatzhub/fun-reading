@@ -105,6 +105,7 @@ home.on('connection', (socket) => {
   });
 
   function initGame(time, roomName) {
+    // TODO: cancel timeout if any 1 player quits
     console.log(108, time);
     if (time == 0) {
       io.in(roomName).emit('game end', 'end');

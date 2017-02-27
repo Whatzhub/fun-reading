@@ -1,7 +1,14 @@
 // Declare external modules
 import WebSpeech from './js/webSpeech';
 import Store from './js/store';
-import {scoreBoardModal, scoreBoardModalContent} from './js/scoreBoardModal';
+import {
+  scoreBoardModal,
+  scoreBoardModalContent
+} from './js/scoreBoardModal';
+import {
+  gameEndModal,
+  gameEndModalContent
+} from './js/gameEndModal';
 var socket = io('/');
 
 // Declare home View
@@ -32,8 +39,7 @@ var home = new Vue({
         this.waitScreen = true;
         this.playerNo = 1;
         this.timerCount();
-      }
-      else {
+      } else {
         this.waitScreen = true;
         this.playerNo = 2;
         this.timerCount();
@@ -45,8 +51,7 @@ var home = new Vue({
       console.log(56, this.name, playerTwo, playerOne);
       if (this.name == playerOne) {
         Store.setOpponentName(playerTwo);
-      }
-      else Store.setOpponentName(playerOne);
+      } else Store.setOpponentName(playerOne);
 
       this.waitScreen = false;
       this.gameScreen = true;
@@ -87,6 +92,7 @@ var play = new Vue({
     player: {
       name: '',
       score: 0,
+      rating: 60,
       wordScore: 0,
       showScore: false,
       typedWord: '',
@@ -102,6 +108,9 @@ var play = new Vue({
     opponent: {
       name: '',
       score: 0,
+      rating: 60,
+      wordScore: 0,
+      showScore: false,
       typedWord: '',
       bonusWords: 0,
       bonusPercent: 0,
@@ -180,9 +189,12 @@ var play = new Vue({
       console.log(player, words, score, wordLvls, wordCount);
       play.clearWord(words);
       if (player == this.opponent.name) {
-        this.opponent.score += score;
-        this.opponent.bonusWords = wordCount;
+        // this.opponent.score += score;
+
+        if (wordCount > 1) this.showStreak(wordCount, score, this.opponent);
         this.addScoreTiles(wordLvls, this.opponent);
+        this.addScore(score, this.opponent);
+        this.showScore(score, this.opponent);
       }
     });
 
@@ -289,10 +301,10 @@ var play = new Vue({
 
       // Enable Streak if word match for tile > multiples of 5
       var processedScore = cumulateScore;
-      if (wordCount > 1) processedScore = this.showStreak(wordCount, cumulateScore);
+      if (wordCount > 1) processedScore = this.showStreak(wordCount, cumulateScore, this.player);
       this.addScoreTiles(matchedLvls, this.player);
-      this.addScore(processedScore);
-      this.showScore(processedScore);
+      this.addScore(processedScore, this.player);
+      this.showScore(processedScore, this.player);
 
       // Notify opponent
       socket.emit('player matched word', matchedWords, processedScore, matchedLvls, wordCount);
@@ -326,43 +338,50 @@ var play = new Vue({
     },
     endGame: function() {
       console.log('endgame init..');
+      gameEndModal.setContent(gameEndModalContent(this.player, this.opponent));
+      gameEndModal.addFooterBtn('Back to Home', 'tingle-btn tingle-btn--primary', function() {
+        // here goes some logic
+        location.href = '/';
+        gameEndModal.close();
+      });
+      gameEndModal.open();
 
     },
-    showStreak: function(count, score) {
+    showStreak: function(count, score, thisPlayer) {
       setTimeout(() => {
-        this.player.bonusWords = 0;
+        thisPlayer.bonusWords = 0;
       }, 1000);
 
       if (count == 2) {
-        this.player.bonusWords = 2;
-        this.player.bonusPercent = 20;
+        thisPlayer.bonusWords = 2;
+        thisPlayer.bonusPercent = 20;
         return (+score * 1.2);
       }
       if (count == 3) {
-        this.player.bonusWords = 3;
-        this.player.bonusPercent = 30;
+        thisPlayer.bonusWords = 3;
+        thisPlayer.bonusPercent = 30;
         return (+score * 1.3);
       }
       if (count == 4) {
-        this.player.bonusWords = 4;
-        this.player.bonusPercent = 40;
+        thisPlayer.bonusWords = 4;
+        thisPlayer.bonusPercent = 40;
         return (+score * 1.4);
       }
       if (count > 4) {
-        this.player.bonusWords = 5;
-        this.player.bonusPercent = 50;
+        thisPlayer.bonusWords = 5;
+        thisPlayer.bonusPercent = 50;
         return (+score * 1.5);
       }
     },
-    showScore: function(score) {
-      this.player.wordScore = score;
-      this.player.showScore = true;
+    showScore: function(score, thisPlayer) {
+      thisPlayer.wordScore = score;
+      thisPlayer.showScore = true;
       setTimeout(function() {
-        play.player.showScore = false;
+        thisPlayer.showScore = false;
       }, 1000);
     },
-    addScore: function(score) {
-      var oldScore = this.player.score;
+    addScore: function(score, thisPlayer) {
+      var oldScore = thisPlayer.score;
       var newScore = oldScore + score;
       var animationFrame;
 
@@ -378,7 +397,7 @@ var play = new Vue({
           tweeningNumber: newScore
         }, 500)
         .onUpdate(function() {
-          play.player.score = +this.tweeningNumber.toFixed(0)
+          thisPlayer.score = +this.tweeningNumber.toFixed(0)
         })
         .onComplete(function() {
           cancelAnimationFrame(animationFrame)
@@ -391,17 +410,23 @@ var play = new Vue({
         if (i == 0) {
           thisPlayer.lvlZeroCount++;
           thisPlayer.isLvlZeroTile = true;
-          setTimeout(() => {thisPlayer.isLvlZeroTile = false;}, 1000);
+          setTimeout(() => {
+            thisPlayer.isLvlZeroTile = false;
+          }, 1000);
         }
         if (i == 1) {
           thisPlayer.lvlOneCount++;
           thisPlayer.isLvlOneTile = true;
-          setTimeout(() => {thisPlayer.isLvlOneTile = false;}, 1000);
+          setTimeout(() => {
+            thisPlayer.isLvlOneTile = false;
+          }, 1000);
         }
         if (i == 2) {
           thisPlayer.lvlTwoCount++;
           thisPlayer.isLvlTwoTile = true;
-          setTimeout(() => {thisPlayer.isLvlTwoTile = false;}, 1000);
+          setTimeout(() => {
+            thisPlayer.isLvlTwoTile = false;
+          }, 1000);
         }
       });
     },
