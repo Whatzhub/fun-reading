@@ -3,7 +3,7 @@ var gameEndModal = new tingle.modal({
     footer: true,
     stickyFooter: false,
     closeLabel: "Close",
-    cssClass: ['custom-class-1', 'custom-class-2'],
+    cssClass: ['center'],
     onOpen: function() {
         console.log('scoreboard modal open');
     },
@@ -21,21 +21,23 @@ var gameEndModal = new tingle.modal({
 var gameEndModalContent = function(player, opponent) {
   var playerName = player.name || 'YOU';
   var playerScore = player.score;
-  var playerRating = player.rating || 60;
+  var playerRating = player.rating || 1600;
   var playerLvlZeroCount = player.lvlZeroCount;
   var playerLvlOneCount = player.lvlOneCount;
   var playerLvlTwoCount = player.lvlTwoCount;
+  var playerIsWon = player.isWon;
 
   var opponentName = opponent.name || 'Opponent';
   var opponentScore = opponent.score;
-  var opponentRating = opponent.rating || 60;
+  var opponentRating = opponent.rating || 1600;
   var opponentLvlZeroCount = opponent.lvlZeroCount;
   var opponentLvlOneCount = opponent.lvlOneCount;
   var opponentLvlTwoCount = opponent.lvlTwoCount;
+  var opponentIsWon = opponent.isWon;
 
   var playerResult;
   var opponentResult;
-  if (playerScore > opponentScore) {
+  if (playerIsWon) {
     playerResult = 'Won';
     opponentResult = 'Lost';
   }
@@ -45,8 +47,8 @@ var gameEndModalContent = function(player, opponent) {
   }
 
   var a = `
-  <h1 class="center">Scoreboard</h1>
-  <table class="center">
+  <h1>Scoreboard</h1>
+  <table>
     <thead>
       <tr>
         <th><i class="fa fa-user-circle fa-2x"></i> ${playerName}</th>

@@ -5,7 +5,6 @@
   <title>Fun Reading - A Reading Battle Game</title>
   <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
   <link href="https://fonts.googleapis.com/css?family=Chewy" rel="stylesheet">
-  <link rel="stylesheet" href="http://csshake.surge.sh/csshake.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.4/milligram.min.css">
   <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/tingle.min.css">
@@ -42,14 +41,14 @@
 
           <div class="row">
             <div class="column center">
-              <h4 class="chewy-font">Read against your opponent.</h4>
+              <h4 class=""><em>Read against your opponent.</em></h4>
             </div>
           </div>
 
           <div class="row">
             <div class="column center">
-              <input class="play-btn" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="name" />
-              <a class="button" @click="submitName">PLAY</a>
+              <input class="name-input chewy-font" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="player.name" />
+              <a class="button play-btn" @click="submitName">PLAY</a>
             </div>
           </div>
 

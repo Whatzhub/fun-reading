@@ -20,7 +20,7 @@ var scoreBoardModal = new tingle.modal({
 
 var scoreBoardModalContent = `
 <h1>Scoreboard</h1>
-<table>
+<table class="center">
   <thead>
     <tr>
       <th>Name</th>

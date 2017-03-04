@@ -1,22 +1,22 @@
 // Declare external modules
 import WebSpeech from './js/webSpeech';
 import Store from './js/store';
-import {
-  scoreBoardModal,
-  scoreBoardModalContent
-} from './js/scoreBoardModal';
-import {
-  gameEndModal,
-  gameEndModalContent
-} from './js/gameEndModal';
+import Elo from './js/elo';
+import {scoreBoardModal, scoreBoardModalContent} from './js/scoreBoardModal';
+import {gameEndModal,gameEndModalContent} from './js/gameEndModal';
+import {inputNameModal, inputNameModalContent} from './js/inputNameModal';
 var socket = io('/');
 
 // Declare home View
 var home = new Vue({
   data: {
+    // Players Data
+    player: {
+      name: '',
+      rating: 1600,
+      showScore: false
+    },
     // Home Data
-    name: '',
-    rating: 0,
     homeScreen: false,
     waitScreen: false,
     gameScreen: false,
@@ -27,14 +27,20 @@ var home = new Vue({
   },
   mounted: function() {
     console.log('Home screen loaded!');
-    // set modal content
+    // set scoreboard modal content
     scoreBoardModal.setContent(scoreBoardModalContent);
+
+    // set input name modal content
+    inputNameModal.setContent(inputNameModalContent('Yo, enter a name to play!'));
+    inputNameModal.addFooterBtn('Got it', 'tingle-btn tingle-btn--primary', function() {
+        inputNameModal.close();
+      });
 
     // Trigger play action
     socket.on('join msg', (userName, playerNo, roomName, opponentName) => {
       console.log(12, userName, playerNo, roomName);
 
-      if (userName == this.name && playerNo == 1) {
+      if (userName == this.player.name && playerNo == 1) {
         console.log(userName + ' is waiting for another player at ' + roomName);
         this.waitScreen = true;
         this.playerNo = 1;
@@ -48,8 +54,8 @@ var home = new Vue({
 
     // Trigger playroom mode
     socket.on('play begin', (wordsList, playerTwo, playerOne) => {
-      console.log(56, this.name, playerTwo, playerOne);
-      if (this.name == playerOne) {
+      console.log(56, this.player.name, playerTwo, playerOne);
+      if (this.player.name == playerOne) {
         Store.setOpponentName(playerTwo);
       } else Store.setOpponentName(playerOne);
 
@@ -59,14 +65,12 @@ var home = new Vue({
   },
   methods: {
     submitName: function(e) {
-      if (this.name == '') {
-        this.isShake = true;
-        setTimeout(() => this.isShake = false, 1000);
-        return;
+      if (this.player.name == '') {
+        return inputNameModal.open();
       }
-      socket.emit('join', this.name);
+      socket.emit('join', this.player.name);
       // sessionStorage.setItem('name', this.name);
-      Store.setUserName(this.name);
+      Store.setUserName(this.player.name);
     },
     timerCount: function() {
       this.milliseconds -= 1000;
@@ -92,7 +96,7 @@ var play = new Vue({
     player: {
       name: '',
       score: 0,
-      rating: 60,
+      rating: 1600,
       wordScore: 0,
       showScore: false,
       typedWord: '',
@@ -103,12 +107,13 @@ var play = new Vue({
       lvlTwoCount: 0,
       isLvlZeroTile: false,
       isLvlOneTile: false,
-      isLvlTwoTile: false
+      isLvlTwoTile: false,
+      isWon: false
     },
     opponent: {
       name: '',
       score: 0,
-      rating: 60,
+      rating: 1800,
       wordScore: 0,
       showScore: false,
       typedWord: '',
@@ -119,7 +124,8 @@ var play = new Vue({
       lvlTwoCount: 0,
       isLvlZeroTile: false,
       isLvlOneTile: false,
-      isLvlTwoTile: false
+      isLvlTwoTile: false,
+      isWon: false
     },
 
     // General Gameplay Data
@@ -189,7 +195,6 @@ var play = new Vue({
       console.log(player, words, score, wordLvls, wordCount);
       play.clearWord(words);
       if (player == this.opponent.name) {
-        // this.opponent.score += score;
 
         if (wordCount > 1) this.showStreak(wordCount, score, this.opponent);
         this.addScoreTiles(wordLvls, this.opponent);
@@ -299,6 +304,9 @@ var play = new Vue({
         });
       }
 
+      this.player.typedWord = '';
+      if (matchedWords.length == 0) return console.log(' no word matched!');
+
       // Enable Streak if word match for tile > multiples of 5
       var processedScore = cumulateScore;
       if (wordCount > 1) processedScore = this.showStreak(wordCount, cumulateScore, this.player);
@@ -308,8 +316,6 @@ var play = new Vue({
 
       // Notify opponent
       socket.emit('player matched word', matchedWords, processedScore, matchedLvls, wordCount);
-
-      this.player.typedWord = '';
 
       // End game if no more words
       if (this.words.length == 0) return this.endGame();
@@ -338,12 +344,26 @@ var play = new Vue({
     },
     endGame: function() {
       console.log('endgame init..');
+
+      // Determine end game results
+      if (this.player.score > this.opponent.score) this.player.isWon = true;
+      else this.opponent.isWon = true;
+
+      // Calculate elo for 2 players
+      var elo = Elo();
+      var expectedA = elo.getExpected(this.player.rating, this.opponent.rating);
+      var expectedB = elo.getExpected(this.opponent.rating, this.player.rating);
+      this.player.rating = elo.updateRating(expectedA, this.player.isWon, this.player.rating);
+      this.opponent.rating = elo.updateRating(expectedB, this.opponent.isWon, this.opponent.rating);
+
+      // Setup game end scoreboard to 2 players
       gameEndModal.setContent(gameEndModalContent(this.player, this.opponent));
       gameEndModal.addFooterBtn('Back to Home', 'tingle-btn tingle-btn--primary', function() {
-        // here goes some logic
         location.href = '/';
         gameEndModal.close();
       });
+
+      // Open Game end modal
       gameEndModal.open();
 
     },
