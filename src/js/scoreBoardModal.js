@@ -1,3 +1,5 @@
+import tingle from 'tingle.js';
+
 // instanciate new modal
 var scoreBoardModal = new tingle.modal({
     footer: true,

@@ -6,7 +6,7 @@ module.exports = [
   {
     entry: {
       app: ['./src/home.js'],
-      // vendors: ['./vendor/js/vue.js']
+      vendors: ['vue', 'moment', 'axios', 'milligram', 'tween.js', 'tingle.js']
     },
     output: {
       path: './dist/js',
@@ -18,6 +18,11 @@ module.exports = [
         exclude: /node_modules/,
         loader: 'babel-loader'
       }]
+    },
+    resolve: {
+      alias: {
+        vue$: 'vue/dist/vue.common.js' // 'vue/dist/vue.common.js' for webpack 1
+      }
     }
   },
   // 2nd Entry for CSS config
@@ -36,7 +41,9 @@ module.exports = [
       }]
     },
     plugins: [
-      new ExtractTextPlugin("app.bundle.css")
+      new ExtractTextPlugin("app.bundle.css"),
+      new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.bundle.js'),
+      new webpack.optimize.UglifyJsPlugin()
     ]
   }
 ];

@@ -1,11 +1,16 @@
 // Declare external modules
+var socket = io('/');
+import Vue from 'vue';
+import moment from 'moment';
+import TWEEN from 'tween.js';
+import tingle from 'tingle.js';
+
 import WebSpeech from './js/webSpeech';
 import Store from './js/store';
 import Elo from './js/elo';
 import {scoreBoardModal, scoreBoardModalContent} from './js/scoreBoardModal';
 import {gameEndModal,gameEndModalContent} from './js/gameEndModal';
 import {inputNameModal, inputNameModalContent} from './js/inputNameModal';
-var socket = io('/');
 
 // Declare home View
 var home = new Vue({

@@ -1,3 +1,5 @@
+import tingle from 'tingle.js';
+
 // instantiate new modal
 var gameEndModal = new tingle.modal({
     footer: true,
