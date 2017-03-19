@@ -37,23 +37,26 @@ if (document.getElementById('home') != null) {
   console.log('Home screen is present');
   localforage.getItem('playerName')
     .then(player => {
-      returningPlayer = player;
+      console.log(40, player);
+      if (player != null) {
+        returningPlayer = player;
 
-      returningPlayer.showScore = false;
-      returningPlayer.score = 0,
-      returningPlayer.wordScore = 0,
-      returningPlayer.typedWord = '',
-      returningPlayer.bonusWords = 0,
-      returningPlayer.bonusPercent = 0,
-      returningPlayer.lvlZeroCount = 0,
-      returningPlayer.lvlOneCount = 0,
-      returningPlayer.lvlTwoCount = 0,
-      returningPlayer.isLvlZeroTile = false,
-      returningPlayer.isLvlOneTile = false,
-      returningPlayer.isLvlTwoTile = false,
-      returningPlayer.isWon = false
-      console.log(39, returningPlayer);
-
+        returningPlayer.showScore = false;
+        returningPlayer.score = 0,
+        returningPlayer.wordScore = 0,
+        returningPlayer.typedWord = '',
+        returningPlayer.bonusWords = 0,
+        returningPlayer.bonusPercent = 0,
+        returningPlayer.lvlZeroCount = 0,
+        returningPlayer.lvlOneCount = 0,
+        returningPlayer.lvlTwoCount = 0,
+        returningPlayer.isLvlZeroTile = false,
+        returningPlayer.isLvlOneTile = false,
+        returningPlayer.isLvlTwoTile = false,
+        returningPlayer.isWon = false
+        console.log(39, returningPlayer);
+      }
+      
       // Vue Instance #1 - Home
       var home = new Vue({
         data: {
