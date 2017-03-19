@@ -74,7 +74,7 @@ if (document.getElementById('home') != null) {
         },
         firebase: {
           // can bind to either a direct Firebase reference or a query
-          players: playersRef.orderByChild("rating").limitToLast(25)
+          players: playersRef.orderByChild("rating").limitToLast(25).reverse()
         },
         mounted: function() {
           console.log('Home screen loaded!');
