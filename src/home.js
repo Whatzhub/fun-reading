@@ -56,7 +56,7 @@ if (document.getElementById('home') != null) {
         returningPlayer.isWon = false
         console.log(39, returningPlayer);
       }
-      
+
       // Vue Instance #1 - Home
       var home = new Vue({
         data: {
@@ -74,7 +74,7 @@ if (document.getElementById('home') != null) {
         },
         firebase: {
           // can bind to either a direct Firebase reference or a query
-          players: playersRef.limitToLast(25)
+          players: playersRef.orderByChild("rating").limitToLast(25)
         },
         mounted: function() {
           console.log('Home screen loaded!');
