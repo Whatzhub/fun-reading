@@ -115,9 +115,7 @@ if (document.getElementById('home') != null) {
                 this.player.rating = i.rating;
               }
             });
-            // sort rankings from firebase
-            var playersArr = this.player.sort((a, b) => b.rating - a.rating);
-            playersRef.child(this.player.name).update(playersArr);
+            playersRef.child(this.player.name).update(this.player);
 
             this.waitScreen = false;
             this.gameScreen = true;
@@ -154,6 +152,7 @@ if (document.getElementById('home') != null) {
           },
           openScoreboard: function() {
             // set scoreboard modal content
+            var playersArr = this.players.sort((a, b) => b.rating - a.rating);
             scoreBoardModal.setContent(scoreBoardModalContent(this.players));
             scoreBoardModal.open();
           }
