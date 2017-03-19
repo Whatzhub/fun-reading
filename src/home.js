@@ -74,7 +74,7 @@ if (document.getElementById('home') != null) {
         },
         firebase: {
           // can bind to either a direct Firebase reference or a query
-          players: playersRef.orderByChild("rating").limitToLast(25).reverse()
+          players: playersRef.orderByChild("rating").limitToLast(25)
         },
         mounted: function() {
           console.log('Home screen loaded!');
@@ -131,7 +131,7 @@ if (document.getElementById('home') != null) {
               localforage.setItem('playerName', this.player)
                 .then(data => {
                   console.log('set player name as:', this.player.name);
-                  playersRef.child(this.player.name).set(this.player);
+                  playersRef.child(this.player.name).set(this.player.reverse());
                 })
                 .catch(err => console.log(101, err));
             }
