@@ -115,7 +115,9 @@ if (document.getElementById('home') != null) {
                 this.player.rating = i.rating;
               }
             });
-            playersRef.child(this.player.name).update(this.player);
+            // sort rankings from firebase
+            var playersArr = this.player.sort((a, b) => b.rating - a.rating);
+            playersRef.child(this.player.name).update(playersArr);
 
             this.waitScreen = false;
             this.gameScreen = true;
