@@ -6,7 +6,7 @@ module.exports = [
   {
     entry: {
       app: ['./src/home.js'],
-      vendors: ['vue', 'moment', 'axios', 'milligram', 'tween.js', 'tingle.js']
+      vendors: ['vue', 'moment', 'axios', 'tween.js', 'tingle.js', 'firebase', 'localforage']
     },
     output: {
       path: './dist/js',

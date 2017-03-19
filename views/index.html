@@ -47,6 +47,12 @@
 
           <div class="row">
             <div class="column center">
+              <h5><i class="fa fa-star fa-2x"></i><em> Rating: {{player.rating}}</em></h5>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="column center">
               <input class="name-input chewy-font" autocomplete="off" placeholder="Anonymous" @keyup.enter="submitName" v-model="player.name" />
               <a class="button play-btn" @click="submitName">PLAY</a>
             </div>
@@ -167,10 +173,9 @@
       <div class="row">
         <div class="column center">
 
-          <form action="" @submit.prevent>
+          <!-- <form action="" @submit.prevent>
             <input id="m" autocomplete="off" placeholder="type your word.." @keyup.enter="submitMsg" v-model="player.typedWord" />
-          </form>
-
+          </form> -->
           <h3>Words Left: {{words.length - 1}}</h3>
           <h5> <i class="fa fa-clock-o fa-2x"></i> Time left: {{ seconds }} secs</h5>
 

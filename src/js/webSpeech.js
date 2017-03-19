@@ -5,7 +5,7 @@ WebSpeech.init = function() {
   var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
   var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
 
-  if (!SpeechRecognition) return alert('Pls upgrade to a browser that supports Web Speech!');
+  if (!SpeechRecognition || SpeechRecognition == 'undefined') return console.log('Pls upgrade to a browser that supports Web Speech!');
   // var grammar = '#JSGF V1.0;';
 
   var recognition = new SpeechRecognition();

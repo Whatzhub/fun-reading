@@ -15,7 +15,8 @@ var gameEndModal = new tingle.modal({
     beforeClose: function() {
         // here's goes some logic
         // e.g. save content before closing the modal
-        // return true; // close the modal
+        location.href = '/';
+        return true; // close the modal
     	return false; // nothing happens
     }
 });

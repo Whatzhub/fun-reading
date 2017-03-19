@@ -16,11 +16,14 @@
   "dependencies": {
     "axios": "^0.15.3",
     "express": "^4.14.0",
+    "firebase": "^3.7.2",
+    "localforage": "^1.5.0",
     "moment": "^2.17.1",
     "socket.io": "^1.7.2",
     "tingle.js": "^0.9.0",
     "tween.js": "^16.6.0",
-    "vue": "^2.2.1"
+    "vue": "^2.2.4",
+    "vuefire": "^1.4.0"
   },
   "devDependencies": {
     "babel-core": "^6.22.1",

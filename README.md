@@ -14,15 +14,6 @@ This README would normally document whatever steps are necessary to get your app
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Tools used
-
 webpack -p
 Note: The p flag is “production” mode and uglifies/minifies output.
 
@@ -35,22 +26,6 @@ sass --watch index.scss:index.css init.scss:init.css --style compressed
 uglifyjs ./dist/index.js \
          -o ./dist/index.min.js \
          -p 5 -c -m
-
-         // rules: [{
-         //   test: /\.sass$/,
-         //   loader: ExtractTextPlugin.extract({
-         //     fallbackLoader: "style-loader",
-         //     loader: "css-loader!sass-loader",
-         //   }),
-         // }],
-         // loaders: [{
-         //   test: /\.js$/,
-         //   exclude: /node_modules/,
-         //   loader: 'babel-loader'
-         // }, {
-         //   test: /\.scss$/,
-         //   loaders: ['style-loader', 'css-loader', 'sass-loader']
-         // }]
 
 ### Who do I talk to? ###
 

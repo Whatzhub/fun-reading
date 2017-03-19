@@ -20,79 +20,27 @@ var scoreBoardModal = new tingle.modal({
     }
 });
 
-var scoreBoardModalContent = `
-<h1>Scoreboard</h1>
-<table class="center">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Age</th>
-      <th>Height</th>
-      <th>Location</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Stephen Curry</td>
-      <td>27</td>
-      <td>1,91</td>
-      <td>Akron, OH</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-    <tr>
-      <td>Klay Thompson</td>
-      <td>25</td>
-      <td>2,01</td>
-      <td>Los Angeles, CA</td>
-    </tr>
-  </tbody>
-</table>`;
+var scoreBoardModalContent = function(players) {
+  var data = players;
+  var a = `
+  <h1 class="center">Top 25 Players</h1>
+  <table class="center">
+    <thead>
+      <tr>
+        <th>Players</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${data.map(p => {
+        return `<tr>
+          <td>${p.name}</td>
+          <td>${p.rating}</td>
+        </tr>`
+      })}
+    </tbody>
+  </table>`;
+  return a;
+};
 
 export {scoreBoardModal, scoreBoardModalContent};
