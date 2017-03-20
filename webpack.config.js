@@ -1,8 +1,9 @@
 const webpack = require('webpack');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = [
-  // 1st Entry for JS config
+  // JS config
   {
     entry: {
       app: ['./src/home.js'],
@@ -25,7 +26,7 @@ module.exports = [
       }
     }
   },
-  // 2nd Entry for CSS config
+  // CSS config
   {
     entry: {
       app: './src/scss/globals.scss'
@@ -43,7 +44,12 @@ module.exports = [
     plugins: [
       new ExtractTextPlugin("app.bundle.css"),
       new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.bundle.js'),
-      new webpack.optimize.UglifyJsPlugin()
+      new webpack.optimize.UglifyJsPlugin(),
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: '"production"'
+        }
+      })
     ]
   }
 ];

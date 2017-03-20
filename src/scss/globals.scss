@@ -4,7 +4,7 @@ $text-color: #333333;
 
 html {
 	font-size: 62.5%;
-	@media (max-width: 40.0rem) {
+	@media (max-width: 768px) {
 		font-size: 125%;
 	}
 }
