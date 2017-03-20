@@ -4,8 +4,9 @@ $text-color: #333333;
 
 html {
 	font-size: 62.5%;
-	@media (max-width: 768px) {
-		font-size: 125%;
+	/* Portrait and Landscape Mobile Screens*/
+	@media only screen and (max-device-width: 667px) {
+		font-size: 100%;
 	}
 }
 
