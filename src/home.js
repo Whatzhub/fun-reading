@@ -7,6 +7,8 @@ var localforage = require('localforage');
 import Vue from 'vue';
 import moment from 'moment';
 import TWEEN from 'tween.js';
+import Wait from 'please-wait';
+console.log(11, Wait);
 
 import WebSpeech from './js/webSpeech';
 import Store from './js/store';
@@ -17,6 +19,13 @@ import {gameEndModal,gameEndModalContent} from './js/gameEndModal';
 import {inputNameModal, inputNameModalContent} from './js/inputNameModal';
 
 Vue.use(VueFire);
+
+// Initialise Preloader
+var loadingScreen = Wait.pleaseWait({
+  logo: "",
+  backgroundColor: "#DFDBE5",
+  loadingHtml: "<div class='spinner'><div class='dot1'></div><div class='dot2'></div></div>"
+});
 
 // Initialize Firebase
 var config = {
@@ -34,6 +43,7 @@ var returningPlayer;
 
 // Initialise Home View
 if (document.getElementById('home') != null) {
+
   console.log('Home screen is present');
   localforage.getItem('playerName')
     .then(player => {
@@ -574,6 +584,7 @@ if (document.getElementById('home') != null) {
       // Mount the Vue Instances
       home.$mount('#home');
       play.$mount('#play');
+      loadingScreen.finish();
     })
     .catch(err => console.log(31, err));
 }

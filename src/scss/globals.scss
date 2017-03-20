@@ -2,6 +2,13 @@
 $bg-color: #DFDBE5;
 $text-color: #333333;
 
+html {
+	font-size: 62.5%;
+	@media (max-width: 40.0rem) {
+		font-size: 125%;
+	}
+}
+
 body{
 	background-color: $bg-color;
 	color: $text-color;
@@ -13,22 +20,15 @@ body{
 	// font-size: 14px;
 	// max-width: 1500px;
 	// margin: 0 auto;
-// 	-webkit-animation: color-change-5x 8s linear infinite alternate both;
-// 	-moz-animation: color-change-5x 8s linear infinite alternate both;
-// 	animation: color-change-5x 8s linear infinite alternate both;
-//
-// @-webkit-keyframes color-change-5x{0%{background:#19dcea}25%{background:#b22cff}50%{background:#ea2222}75%{background:#f5be10}100%{background:#3bd80d}}@keyframes color-change-5x{0%{background:#19dcea}25%{background:#b22cff}50%{background:#ea2222}75%{background:#f5be10}100%{background:#3bd80d}}
-// @-webkit-keyframes color-change-2x{0%{background:#19dcea}100%{background:#b22cff}}@keyframes color-change-2x{0%{background:#19dcea}100%{background:#b22cff}}
-}
-.test-div {
-	color: blue;
 }
 
-// .container{
-// 	max-width: 940px;
-// 	margin: 0 auto;
-// 	position: relative;
-// }
+body > #home, body > #play {
+	display: none;
+}
+
+body.pg-loaded > #home, body.pg-loaded > #play {
+  display: block;
+}
 
 .fixed-top-right {
 	position: fixed;
@@ -55,6 +55,8 @@ body{
 .mt-20 {margin-top: 20px;}
 .mb-20 {margin-bottom: 20px;}
 
+@import "preloader-vendor";
+@import "preloader";
 @import "transitions";
 @import "home";
 @import "play";

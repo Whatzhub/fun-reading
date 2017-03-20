@@ -19,6 +19,7 @@
     "firebase": "^3.7.2",
     "localforage": "^1.5.0",
     "moment": "^2.17.1",
+    "please-wait": "0.0.5",
     "socket.io": "^1.7.2",
     "tingle.js": "^0.9.0",
     "tween.js": "^16.6.0",
