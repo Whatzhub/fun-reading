@@ -21,11 +21,11 @@ Vue.use(VueFire);
 
 // Initialize Firebase
 var config = {
-  apiKey: "AIzaSyBEOHaFI29_2dOuaENePF8cWVjF5Eb6a4c",
-  authDomain: "funreading-8626f.firebaseapp.com",
-  databaseURL: "https://funreading-8626f.firebaseio.com",
-  storageBucket: "funreading-8626f.appspot.com",
-  messagingSenderId: "646931501365"
+  apiKey: "Your apiKey",
+  authDomain: "Your authDomain",
+  databaseURL: "Your databaseURL",
+  storageBucket: "Your storageBucket",
+  messagingSenderId: "Your messagingSenderId"
 };
 Firebase.initializeApp(config);
 var playersRef = Firebase.database().ref('players');
